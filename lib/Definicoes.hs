@@ -3,7 +3,7 @@ module Definicoes where
 import LI12324
 
 sementeValor :: Semente
-sementeValor = 436367345433 
+sementeValor = 436367345433
 
 larguraBloco :: Double
 larguraBloco = 40
@@ -35,37 +35,38 @@ mapa1 = [
 
 f :: [[Char]] -> (Double,Double) -> [[(Double,Double,Char)]]
 f [] _ = []
-f (h:t) (x,y) = fAux h (x,y) : f t (x,y-40)
+f (h:t) (x, y) = fAux h (x, y) : f t (x, y - 40)
 
-fAux :: [Char] -> (Double,Double) -> [(Double,Double,Char)]
-fAux [] _ =  []
-fAux (h:t) (x,y)= (x,y,h): fAux t (x+40,y)
+fAux :: [Char] -> (Double, Double) -> [(Double, Double, Char)]
+fAux [] _ = []
+fAux (h:t) (x, y) = (x, y, h) : fAux t (x + 40, y)
 
-listaBlocosAux :: [(Double,Double,Char)] -> [Bloco]
+listaBlocosAux :: [(Double, Double, Char)] -> [Bloco]
 listaBlocosAux [] = []
-listaBlocosAux ((x,y,letra):t) | letra == 'B' = Plataforma (x,y) : listaBlocosAux t
-                               | letra == 'E' = Escada (x,y) : listaBlocosAux t
-                               | letra == 'V' = Vazio : listaBlocosAux t
-                               | letra == 'A' = Alcapao (x,y) True : listaBlocosAux t
-                               | otherwise = listaBlocosAux t
+listaBlocosAux ((x, y, letra):t)
+  | letra == 'B' = Plataforma (x, y) : listaBlocosAux t
+  | letra == 'E' = Escada (x, y) : listaBlocosAux t
+  | letra == 'V' = Vazio : listaBlocosAux t
+  | letra == 'A' = Alcapao (x, y) True : listaBlocosAux t
+  | otherwise = listaBlocosAux t
 
-listaBlocos :: [[(Double,Double,Char)]] -> [[Bloco]]
+listaBlocos :: [[(Double, Double, Char)]] -> [[Bloco]]
 listaBlocos [] = []
-listaBlocos (h:t) = listaBlocosAux h : listaBlocos t 
+listaBlocos (h:t) = listaBlocosAux h : listaBlocos t
 
 mapa2 :: Mapa
-mapa2 = Mapa ((0,0),Oeste) (0,500) (listaBlocos (f mapa1 (-280,380)))
+mapa2 = Mapa ((0, 0), Oeste) (0, 500) (listaBlocos (f mapa1 (-280, 380)))
 
 mapa3 :: [[Bloco]]
-mapa3 = (listaBlocos (f mapa1 (-280,380)))
+mapa3 = (listaBlocos (f mapa1 (-280, 380)))
 
 listaPE :: [Bloco]
 listaPE = plataformasComEscadas mapa2T
 
 mapa2T :: [[Bloco]]
-mapa2T = transposta (listaBlocos (f mapa1 (-280,380)))
+mapa2T = transposta (listaBlocos (f mapa1 (-280, 380)))
 
-transposta:: [[a]]->[[a]]
+transposta :: [[a]] -> [[a]]
 transposta ([]:_) = []
 transposta x = map head x : transposta (map tail x)
 
