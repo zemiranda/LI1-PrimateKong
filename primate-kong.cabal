@@ -51,8 +51,9 @@ library
         Tarefa3
         Tarefa4
 
-    -- Modules included in this library but not exported.
-    -- other-modules:
+     --Modules included in this library but not exported.
+    --other-modules:
+       
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -72,10 +73,13 @@ library
 executable primate-kong
     -- .hs or .lhs file containing the Main module.
     main-is:          Main.hs
+     
+     --Modules included in this executable, other than Main.
+    --other-modules:
+       
+      
 
-    -- Modules included in this executable, other than Main.
-    -- other-modules:
-
+     
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
 
