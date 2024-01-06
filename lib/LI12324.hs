@@ -21,7 +21,7 @@ module LI12324 (
     ) where
 
 import System.Random (mkStdGen, randoms)
-import GHC.Data.Graph.Color (validateGraph)
+
 
 -- | Peças possíveis para construir um 'Mapa'.
 data Bloco
@@ -166,7 +166,7 @@ data Personagem =
 
 jogador5 :: Personagem
 jogador5 = Personagem
-  { velocidade = (1, 1)
+  { velocidade = (0, 0)
   , tipo       = Jogador
   , posicao    = (100, 100)
   , direcao    = Oeste
@@ -175,7 +175,7 @@ jogador5 = Personagem
   , ressalta   = False
   , vida       = 5
   , pontos     = 0
-  , aplicaDano = (True, 90)
+  , aplicaDano = ((False), 0)
   }
 
 listaInimigos :: [Personagem]

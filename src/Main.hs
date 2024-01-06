@@ -7,14 +7,18 @@ import System.Random
 import Tarefa1
 import Tarefa2 
 import Tarefa3 
-import LI12324
+import LI12324 
+
 
 window :: Display
 window = InWindow "Teste1" (largura, altura) (0,0)
 
 initialState :: Jogo
-initialState = (Jogo mapa2 [] [] jogador5 )
-      
+initialState = Jogo mapa2 [] [] jogador5 
+
+v::(Double,Double)
+v = gravidade    
+
 largura, altura :: Int
 largura = 600
 altura = 800
