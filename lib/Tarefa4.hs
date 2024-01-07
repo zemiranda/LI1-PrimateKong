@@ -12,5 +12,31 @@ import Data.Maybe
 
 import LI12324
 
+import Tarefa3
+
+
 atualiza :: [Maybe Acao] -> Maybe Acao -> Jogo -> Jogo
-atualiza = undefined
+atualiza listaAInimigos acao jogo@(Jogo { mapa = mapaA , inimigos = listaI , colecionaveis = listaCol , jogador = jogadorA }) = 
+                                      let jogadorAtualiza =  atualizaJogador acao jogadorA mapaA
+                                          inimigosAtualiza = atualizaInimigos listaAInimigos listaI
+                                      in jogo { inimigos = inimigosAtualiza , jogador = jogadorAtualiza }
+
+
+atualizaInimigos :: [Maybe Acao] -> [Personagem] -> [Personagem] 
+atualizaInimigos (acaoI:t) (inimigo:t2) = (inimigo:t2)
+
+
+atualizaJogador :: Maybe Acao -> Personagem -> Mapa -> Personagem 
+atualizaJogador (Just AndarDireita) jogador@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }) mapa
+ = jogador { velocidade = (100,0) , direcao = Este} 
+atualizaJogador (Just AndarEsquerda) jogador@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir })  mapa
+ = jogador { velocidade = ((-100,yVel)) , direcao = Oeste}
+atualizaJogador (Just Parar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) }) mapa
+ = jogador { velocidade = (0,yVel)} 
+atualizaJogador (Just Saltar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) }) mapa
+    | (colisoesChao mapa jogador) = jogador { velocidade = (0,100)} 
+    | otherwise = jogador
+atualizaJogador Nothing jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) }) mapa
+    = jogador 
+atualizaJogador acao jogador mapa = jogador  
+

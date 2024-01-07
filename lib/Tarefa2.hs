@@ -14,27 +14,26 @@ valida :: Jogo -> Bool
 valida = undefined
 
 -----------------------------------------------------VERIFICAR PLATAFORMA-------------------------------------------------------------------
+validaPlataforma :: Mapa -> Bool
+validaPlataforma (Mapa ((xi, yi), d) (xf, yf) matriz) =
+  validaPlataformaAux (last matriz)
+  where
+    validaPlataformaAux :: [Bloco] -> Bool
+    validaPlataformaAux [] = True
+    validaPlataformaAux ((Plataforma (x, y)):t) = validaPlataformaAux t
+    validaPlataformaAux (h:t) = False
 
-validaPlataforma :: Mapa -> Bool 
-validaPlataforma (Mapa ((xi,yi),d) (xf,yf) matriz) = validaPlataformaAux (last matriz)
-      where 
-        validaPlataformaAux :: [Bloco] -> Bool
-        validaPlataformaAux [] = True
-        validaPlataformaAux ((Plataforma (x, y)):t) = validaPlataformaAux t
-        validaPlataformaAux (h:t) = False 
-                                  
 -----------------------------------------------------LARGURA ALCAPAO----------------------------------------------
-
-larguraAlcapao :: Double -> Personagem -> Bool 
-larguraAlcapao largAlcapao (Personagem {tipo = Jogador , tamanho=(l,a)}) | l > largAlcapao = False 
-                                                                         |       otherwise = True  
-larguraAlcapao largAlcapao (Personagem {}) = False 
+larguraAlcapao :: Double -> Personagem -> Bool
+larguraAlcapao largAlcapao (Personagem {tipo = Jogador, tamanho = (l, a)})
+  | l > largAlcapao = False
+  | otherwise = True
+larguraAlcapao largAlcapao (Personagem {}) = False
 
 --------------------------------------------------------VERIFICAR MAPA-------------------------------------------
-transposta:: [[a]]->[[a]]
+transposta :: [[a]] -> [[a]]
 transposta ([]:_) = []
 transposta x = map head x : transposta (map tail x)
-
 
 plataformasComEscadas :: [[Bloco]] -> [Bloco]
 plataformasComEscadas [] = []

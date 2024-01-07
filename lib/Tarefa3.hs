@@ -12,7 +12,19 @@ import LI12324
 import Tarefa1
 
 movimenta :: Semente -> Tempo -> Jogo -> Jogo
-movimenta = undefined
+movimenta semente dt jogo@(Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) = 
+    let gravidadeJogador = jogadorGravidade jogadorD mapaD
+        jogadorMovimentado = movimentaJogador dt gravidadeJogador mapaD 
+    in jogo { jogador = jogadorMovimentado }
+
+jogadorGravidade ::Personagem -> Mapa -> Personagem 
+jogadorGravidade jogador@(Personagem { velocidade = (xVel, yVel)}) mapa | (colisoesChao mapa jogador) = jogador { velocidade = (xVel,0)} 
+                                                                        | otherwise = jogador { velocidade = (xVel,(yVel - (snd gravidade)))}
+
+movimentaJogador :: Tempo -> Personagem -> Mapa -> Personagem 
+movimentaJogador dt jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) }) mapa =
+    jogador { posicao = ((limiteMapaX (realToFrac dt) jogador mapa),(limiteMapaY (realToFrac dt) jogador mapa))}
+    
 
 
 modificarVidaI :: Personagem -> [Personagem] -> [Personagem]
@@ -57,7 +69,7 @@ colisoesChaoLinha (h:t) personagem
 
 colisoesChaoAux :: Bloco -> Personagem -> Bool
 colisoesChaoAux (Plataforma (xs, ys)) (Personagem {posicao = (x, y)})
-    |(round(y - 20) == round(ys + 20) || round(y + 20) == round(ys - 20)) && (x < xs + 20 || x > xs - 20) = True
+    |(round(y - 20) <= round(ys + 20) && (y-20)>(ys+15) ) && (x < xs + 20 || x > xs - 20) = True
     | otherwise = False
 colisoesChaoAux _ (Personagem {posicao = (x, _)}) = False
 
@@ -81,14 +93,21 @@ desarmar jogador@(Personagem { aplicaDano = (armado, tempoArmado) }) | tempoArma
                                                                      | otherwise = jogador 
 
 
-limiteMapa :: Personagem -> Mapa -> Personagem
-limiteMapa jogador@(Personagem{ posicao = (x,y)}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t)) 
-            | x < -280 = jogador { posicao = (-280,y)}
-            | x > 280 = jogador { posicao = (280,y)}
-            | (colisoesParede2 mapa jogador) == (True,False) = jogador { posicao = (x-20,y)}
-            | (colisoesParede2 mapa jogador) == (False,True) = jogador { posicao = (x+20,y)}
-            |otherwise = jogador
+limiteMapaX :: Float -> Personagem -> Mapa -> Double
+limiteMapaX dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t)) 
+            | x < -281 = -281
+            | x > 281 = 281
+            | (colisoesParede2 mapa jogador) == (True,False) = (x-20)
+            | (colisoesParede2 mapa jogador) == (False,True) = (x+20)
+            |otherwise = (x + (realToFrac xVel) * (realToFrac dt))
 
+
+limiteMapaY :: Float -> Personagem -> Mapa -> Double
+limiteMapaY dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t)) 
+            | y < -380 = -380
+            | y > 380 = 380
+            | (colisoesChao mapa jogador) = y
+            |otherwise = (y + (realToFrac yVel) * (realToFrac dt)) 
 
 
 colisoesParede2 :: Mapa -> Personagem -> (Bool,Bool)
