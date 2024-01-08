@@ -27,7 +27,7 @@ mapa1 = [
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
- ['B','B','B','B','B','B','B','B','V','V','B','B','B','B','B'],
+ ['B','B','B','B','B','B','B','B','B','V','V','B','B','B','B'],
  ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
  ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
  ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
@@ -87,7 +87,7 @@ jogador5 :: Personagem
 jogador5 = Personagem
   { velocidade = (0, 0)
   , tipo       = Jogador
-  , posicao    = (0, -310)
+  , posicao    = (0, 350)
   , direcao    = Este
   , tamanho    = (30, 40)
   , emEscada   = False
@@ -95,6 +95,7 @@ jogador5 = Personagem
   , vida       = 5
   , pontos     = 0
   , aplicaDano = (True, 90)
+  , querSaltar = (False)
   }
 
 --63.333336636424065,-260.333333350718

@@ -83,6 +83,7 @@ data Personagem =
     , vida       :: Int -- ^ não negativo
     , pontos     :: Int
     , aplicaDano :: (Bool, Double) -- ^ se está armado e por quanto tempo ainda
+    , querSaltar :: Bool 
     }
   deriving (Eq, Read, Show)
 

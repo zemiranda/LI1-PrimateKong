@@ -18,12 +18,12 @@ movimenta semente dt jogo@(Jogo { mapa = mapaD , inimigos = inimigosD , colecion
     in jogo { jogador = jogadorMovimentado }
 
 jogadorGravidade ::Personagem -> Mapa -> Personagem 
-jogadorGravidade jogador@(Personagem { velocidade = (xVel, yVel)}) mapa | (colisoesChao mapa jogador) = jogador { velocidade = (xVel,0)} 
-                                                                        | otherwise = jogador { velocidade = (xVel,(yVel - (snd gravidade)))}
+jogadorGravidade jogador@(Personagem { posicao = (x,y) , velocidade = (xVel, yVel) , querSaltar = quer }) mapa | not quer && (colisoesChao mapa jogador) = jogador { velocidade = (xVel,0) } 
+                                                                                             | otherwise = jogador { velocidade = (xVel,(yVel - (snd gravidade))) }
 
 movimentaJogador :: Tempo -> Personagem -> Mapa -> Personagem 
 movimentaJogador dt jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) }) mapa =
-    jogador { posicao = ((limiteMapaX (realToFrac dt) jogador mapa),(limiteMapaY (realToFrac dt) jogador mapa))}
+    jogador { posicao = ((limiteMapaX (realToFrac dt) jogador mapa),(limiteMapaY (realToFrac dt) jogador mapa)) , querSaltar = False}
     
 
 
@@ -69,7 +69,7 @@ colisoesChaoLinha (h:t) personagem
 
 colisoesChaoAux :: Bloco -> Personagem -> Bool
 colisoesChaoAux (Plataforma (xs, ys)) (Personagem {posicao = (x, y)})
-    |(round(y - 20) <= round(ys + 20) && (y-20)>(ys+15) ) && (x < xs + 20 || x > xs - 20) = True
+    |(round(y - 22) <= round(ys + 20) && (y-20)>(ys+15) ) && (x < xs + 30 && x > xs - 30) = True
     | otherwise = False
 colisoesChaoAux _ (Personagem {posicao = (x, _)}) = False
 
@@ -106,7 +106,7 @@ limiteMapaY :: Float -> Personagem -> Mapa -> Double
 limiteMapaY dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t)) 
             | y < -380 = -380
             | y > 380 = 380
-            | (colisoesChao mapa jogador) = y
+            | not (querSaltar jogador) && (colisoesChao mapa jogador) = y
             |otherwise = (y + (realToFrac yVel) * (realToFrac dt)) 
 
 
@@ -127,11 +127,19 @@ colisoesParedeLinha2 (h:t) personagem
 colisoesParedesAux2 :: Bloco -> Personagem -> (Bool,Bool)
 colisoesParedesAux2 (Plataforma (xs, ys)) (Personagem {posicao = (x, y)})
     | ((x + 15 == xs - 20) && (y < ys + 20 || y > ys - 20)) = (True,False)
-    | ((x - 15 == xs + 20) && (y < ys + 20 || y > ys - 20)) = (False,True)
+    | ((x - 15 == xs + 20) && (y < ys + 20 || y > ys -  20)) = (False,True)
     | otherwise = (False,False)
 colisoesParedesAux2 _ (Personagem {posicao = (x, _)}) = (False,False)
 
-
+{-
+currentBlocks :: Personagem -> [Bloco] -> Float
+currentBlocks personagem@(Personagem { velocidade = (xVel,yVel)} , ) [] = if yVel world /= 0
+                         
+currentBlocks world ((Blocks x y):t) = if round (yPos world) == round y+40 
+                                           && xPos world -12  < x+20 && xPos world + 12 > x-20
+                                           then  y+40
+                                           else currentBlocks world t
+-}
 
 
 

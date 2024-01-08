@@ -153,7 +153,6 @@ reage (EventKey (SpecialKey KeyLeft) Down _ _)primata@(PrimateKong { jogo = jogo
 reage (EventKey (SpecialKey KeyRight) Up _ _) primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Parar) jogoA }
 reage (EventKey (SpecialKey KeyLeft) Up _ _) primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Parar) jogoA }
 reage (EventKey (SpecialKey KeyUp) Down _ _) primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Saltar) jogoA }
-reage (EventKey (SpecialKey KeyUp) Up _ _) primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Parar) jogoA }
 reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) Nothing jogoA }
 
 acaoInimigos :: Jogo -> [Maybe Acao] 
@@ -177,7 +176,7 @@ main = do
 atualizaPrimata :: Float -> PrimateKong -> IO PrimateKong 
 atualizaPrimata dt primata@(PrimateKong jogoA menuA opcaoA imgsA) = do 
   let jogoA' = movimenta 1 (realToFrac dt) jogoA
-      p = jogador jogoA
+      p = velocidade (jogador jogoA)
       --p = colisoesChao (mapa jogoA) (jogador jogoA)
   putStrLn (show p)
   return (PrimateKong jogoA' menuA opcaoA imgsA)                

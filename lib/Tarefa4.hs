@@ -28,14 +28,15 @@ atualizaInimigos (acaoI:t) (inimigo:t2) = (inimigo:t2)
 
 atualizaJogador :: Maybe Acao -> Personagem -> Mapa -> Personagem 
 atualizaJogador (Just AndarDireita) jogador@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }) mapa
- = jogador { velocidade = (100,0) , direcao = Este} 
+ = jogador { velocidade = (100,yVel) , direcao = Este} 
 atualizaJogador (Just AndarEsquerda) jogador@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir })  mapa
  = jogador { velocidade = ((-100,yVel)) , direcao = Oeste}
-atualizaJogador (Just Parar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) }) mapa
- = jogador { velocidade = (0,yVel)} 
+atualizaJogador (Just Parar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) , querSaltar = quer }) mapa
+    =  jogador { velocidade = (0,yVel)}  
+     
 atualizaJogador (Just Saltar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) }) mapa
-    | (colisoesChao mapa jogador) = jogador { velocidade = (0,100)} 
-    | otherwise = jogador
+    | not (colisoesChao mapa jogador) = jogador
+    | otherwise = jogador { posicao = (x,y+2) , velocidade = (0,300), querSaltar = True } 
 atualizaJogador Nothing jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) }) mapa
     = jogador 
 atualizaJogador acao jogador mapa = jogador  
