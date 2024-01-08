@@ -18,14 +18,16 @@ movimenta semente dt jogo@(Jogo { mapa = mapaD , inimigos = inimigosD , colecion
     in jogo { jogador = jogadorMovimentado }
 
 jogadorGravidade ::Personagem -> Mapa -> Personagem 
-jogadorGravidade jogador@(Personagem { posicao = (x,y) , velocidade = (xVel, yVel) , querSaltar = quer }) mapa | not quer && (colisoesChao mapa jogador) = jogador { velocidade = (xVel,0) } 
-                                                                                             | otherwise = jogador { velocidade = (xVel,(yVel - (snd gravidade))) }
+jogadorGravidade jogador@(Personagem { posicao = (x,y) , velocidade = (xVel, yVel) , querSaltar = quer ,emEscada = emEsc }) mapa
+        | emEsc && (colisoesChao mapa (jogador { posicao = (x,y)})) = jogador { emEscada = False , posicao = (x,(y+4))} 
+        | emEsc = jogador { velocidade = (0,yVel)}
+        | not quer && (colisoesChao mapa jogador) = jogador { velocidade = (xVel,0) , emEscada = False } 
+        | otherwise = jogador { velocidade = (xVel,(yVel - (snd gravidade))) }
 
 movimentaJogador :: Tempo -> Personagem -> Mapa -> Personagem 
 movimentaJogador dt jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) }) mapa =
     jogador { posicao = ((limiteMapaX (realToFrac dt) jogador mapa),(limiteMapaY (realToFrac dt) jogador mapa)) , querSaltar = False}
     
-
 
 modificarVidaI :: Personagem -> [Personagem] -> [Personagem]
 modificarVidaI _ [] = []
@@ -97,8 +99,8 @@ limiteMapaX :: Float -> Personagem -> Mapa -> Double
 limiteMapaX dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t)) 
             | x < -281 = -281
             | x > 281 = 281
-            | (colisoesParede2 mapa jogador) == (True,False) = (x-20)
-            | (colisoesParede2 mapa jogador) == (False,True) = (x+20)
+            | (colisoesParede2 mapa jogador) == (True,False) = (x-1)
+            | (colisoesParede2 mapa jogador) == (False,True) = (x+1)
             |otherwise = (x + (realToFrac xVel) * (realToFrac dt))
 
 
@@ -126,8 +128,8 @@ colisoesParedeLinha2 (h:t) personagem
 
 colisoesParedesAux2 :: Bloco -> Personagem -> (Bool,Bool)
 colisoesParedesAux2 (Plataforma (xs, ys)) (Personagem {posicao = (x, y)})
-    | ((x + 15 == xs - 20) && (y < ys + 20 || y > ys - 20)) = (True,False)
-    | ((x - 15 == xs + 20) && (y < ys + 20 || y > ys -  20)) = (False,True)
+    | (((x + 15) >= (xs - 20) && (x+15 < xs-17)) && (y < ys + 20 && y > ys - 20)) = (True,False)
+    | (((x - 15) <= (xs + 20) && (x-15 > xs+17) ) && (y < ys + 20 && y > ys -  20)) = (False,True)
     | otherwise = (False,False)
 colisoesParedesAux2 _ (Personagem {posicao = (x, _)}) = (False,False)
 

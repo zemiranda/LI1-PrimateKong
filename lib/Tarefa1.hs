@@ -33,3 +33,5 @@ colisoesPersonagens :: Personagem -> Personagem -> Bool
 colisoesPersonagens (Personagem {posicao =(x,y), tamanho=(l,a)}) (Personagem {posicao =(x2,y2), tamanho=(l2,a2)})
                     | ((x+l) > (x2 - l2) && (x-l) < (x2 + l2)) && y - a < y2 + a2 && y + a > y2 - a2 = True
                     | otherwise = False
+
+

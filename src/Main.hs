@@ -116,7 +116,7 @@ drawBlocks imgs (bloco:rest) = drawBlocks imgs rest
 
 
 drawBlocksAux ::  Imagens -> Bloco -> Picture
-drawBlocksAux imgs (Plataforma (x,y)) = Translate (realToFrac x) (realToFrac y) $ Scale 1.32 1.32 $ (getImagem Bloco imgs)
+drawBlocksAux imgs (Plataforma (x,y)) = Translate (realToFrac x) (realToFrac y) $ Scale 1.38 1.38 $ (getImagem Bloco imgs)
 
 
 
@@ -176,7 +176,6 @@ main = do
 atualizaPrimata :: Float -> PrimateKong -> IO PrimateKong 
 atualizaPrimata dt primata@(PrimateKong jogoA menuA opcaoA imgsA) = do 
   let jogoA' = movimenta 1 (realToFrac dt) jogoA
-      p = velocidade (jogador jogoA)
-      --p = colisoesChao (mapa jogoA) (jogador jogoA)
+      p = (jogador jogoA)
   putStrLn (show p)
   return (PrimateKong jogoA' menuA opcaoA imgsA)                

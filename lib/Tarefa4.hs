@@ -33,11 +33,17 @@ atualizaJogador (Just AndarEsquerda) jogador@(Personagem { posicao = (x,y), velo
  = jogador { velocidade = ((-100,yVel)) , direcao = Oeste}
 atualizaJogador (Just Parar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) , querSaltar = quer }) mapa
     =  jogador { velocidade = (0,yVel)}  
-     
-atualizaJogador (Just Saltar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) }) mapa
-    | not (colisoesChao mapa jogador) = jogador
-    | otherwise = jogador { posicao = (x,y+2) , velocidade = (0,300), querSaltar = True } 
+atualizaJogador (Just Saltar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) , emEscada = emEsc }) mapa@(Mapa (pos,dire) posf matriz)
+    | (colisoesChao mapa jogador) && (colideEscada (concat matriz) jogador) && not emEsc = jogador { posicao = (x,(y+9)), velocidade = (0,50),emEscada = True}
+    | (colisoesChao mapa jogador) = jogador { posicao = (x,y+2) , velocidade = (xVel,300), querSaltar = True } 
+    | otherwise = jogador 
 atualizaJogador Nothing jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) }) mapa
     = jogador 
 atualizaJogador acao jogador mapa = jogador  
 
+colideEscada :: [Bloco] -> Personagem -> Bool 
+colideEscada [] jogador = False 
+colideEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscada = emEsc })
+    |((x + 15) >= (xs - 20) && (x - 15) <= (xs + 20)) && ((y + 20) >= (ys - 20) && (y - 20) <= (ys + 20)) = True
+    | otherwise = colideEscada t jogador 
+colideEscada (bloco:t) jogador = colideEscada t jogador 

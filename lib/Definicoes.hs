@@ -29,8 +29,8 @@ mapa1 = [
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['B','B','B','B','B','B','B','B','B','V','V','B','B','B','B'],
  ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
- ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
- ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','E','V','V','V','V','B','V','V','V','V','V'],
+ ['V','V','V','V','E','V','B','V','V','B','V','V','V','V','V'],
  ['B','B','B','B','B','B','B','B','B','B','B','B','B','B','B']]
 
 f :: [[Char]] -> (Double,Double) -> [[(Double,Double,Char)]]
@@ -113,6 +113,7 @@ listaInimigos =
       , vida       = 70
       , pontos     = 0
       , aplicaDano = (False, 90)
+      , querSaltar = (False)
       }
   , Personagem
       { velocidade = (1, 1)
@@ -125,5 +126,6 @@ listaInimigos =
       , vida       = 200
       , pontos     = 0
       , aplicaDano = (False, 90)
+      , querSaltar = (False)
       }
   ]
