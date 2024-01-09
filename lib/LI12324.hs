@@ -103,7 +103,7 @@ data Acao
 prop> gravidade == (0, 10)
 -}
 gravidade :: Velocidade
-gravidade = (0, 10)
+gravidade = (0, 11.65)
 
 -- | Definição base de um 'Jogo'.
 data Jogo =
