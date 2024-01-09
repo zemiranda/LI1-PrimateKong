@@ -141,7 +141,7 @@ drawAlcapao imgs (bloco:rest) = drawAlcapao imgs rest
 
 
 drawAlcapaoAux ::  Imagens -> Bloco -> Picture
-drawAlcapaoAux imgs (Alcapao (x,y) existe)|existe = Translate (realToFrac x) (realToFrac y) $ Scale 1 1.1 $ (getImagem Alcapa imgs)
+drawAlcapaoAux imgs (Alcapao (x,y) existe)|existe = Translate (realToFrac x) (realToFrac y+10) $ Scale 1 1.1 $ (getImagem Alcapa imgs)
                                           |otherwise = Translate (realToFrac x) (realToFrac y) $ Scale 1 1.1 $ (getImagem AlcapaAberto imgs)
 
 

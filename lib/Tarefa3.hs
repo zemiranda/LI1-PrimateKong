@@ -59,9 +59,9 @@ gravidadeP personagem@(Personagem { posicao = (x, y),  tamanho = (l,a), tipo = J
 
 colisoesChao :: Mapa -> Personagem -> Bool
 colisoesChao (Mapa ((xi,yi),d) (xf,yf) []) _ = False
-colisoesChao (Mapa ((xi,yi),d) (xf,yf) (linha:t)) personagem
-    | colisoesChaoLinha linha personagem = True 
-    | otherwise = colisoesChao (Mapa ((xi,yi),d) (xf,yf) t) personagem
+colisoesChao (Mapa ((xi,yi),d) (xf,yf) matriz) personagem
+    | colisoesChaoLinha (concat matriz) personagem = True 
+    | otherwise = False
 
 colisoesChaoLinha :: [Bloco] -> Personagem -> Bool
 colisoesChaoLinha [] _ = False
@@ -74,6 +74,8 @@ colisoesChaoAux (Plataforma (xs, ys)) (Personagem {posicao = (x, y)})
     |(round(y - 22) <= round(ys + 20) && (y-20)>(ys+15) ) && (x < xs + 30 && x > xs - 30) = True
     | otherwise = False
 colisoesChaoAux _ (Personagem {posicao = (x, _)}) = False
+
+
 
 inimigoAtinge :: Personagem -> [Personagem] -> Personagem
 inimigoAtinge jogador [] = jogador
