@@ -135,13 +135,13 @@ drawStairsAux imgs (Escada (x,y)) = Translate (realToFrac x) (realToFrac y) $ Sc
 
 drawAlcapao ::  Imagens -> [Bloco] -> Picture
 drawAlcapao _ [] = blank  
-drawAlcapao imgs ((Alcapao (x,y) existe ): rest) =
-  pictures [drawAlcapaoAux imgs (Alcapao (x,y) existe ), drawAlcapao imgs rest]
+drawAlcapao imgs ((Alcapao (x,y) existe tempo): rest) =
+  pictures [drawAlcapaoAux imgs (Alcapao (x,y) existe tempo), drawAlcapao imgs rest]
 drawAlcapao imgs (bloco:rest) = drawAlcapao imgs rest  
 
 
 drawAlcapaoAux ::  Imagens -> Bloco -> Picture
-drawAlcapaoAux imgs (Alcapao (x,y) existe)|existe = Translate (realToFrac x) (realToFrac y+10) $ Scale 1 1.1 $ (getImagem Alcapa imgs)
+drawAlcapaoAux imgs (Alcapao (x,y) existe tempo)|existe = Translate (realToFrac x) (realToFrac y+10) $ Scale 1 1.1 $ (getImagem Alcapa imgs)
                                           |otherwise = Translate (realToFrac x) (realToFrac y) $ Scale 1 1.1 $ (getImagem AlcapaAberto imgs)
 
 
@@ -188,6 +188,6 @@ atualizaPrimata :: Float -> PrimateKong -> IO PrimateKong
 atualizaPrimata dt primata@(PrimateKong jogoA menuA opcaoA imgsA) = do 
   let jogoA' = movimenta 1 (realToFrac dt) jogoA
       (Mapa (posI,dirI) posf matriz) = (mapa jogoA)
-      p = colideTopoEscada (concat matriz) (jogador jogoA)
+      p = matriz
   putStrLn (show p)
   return (PrimateKong jogoA' menuA opcaoA imgsA)                

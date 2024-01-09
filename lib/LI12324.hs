@@ -28,7 +28,7 @@ import System.Random (mkStdGen, randoms)
 data Bloco
   = Escada (Double,Double)      -- ^ Permite ao jogador mover-se verticalmente
   | Plataforma (Double,Double)   -- ^ Bloco sólido que pode ser utilizado como superfície
-  | Alcapao (Double,Double) Bool     -- ^ Bloco que desaparece após ser atravessado pelo jogador
+  | Alcapao (Double,Double) Bool Tempo    -- ^ Bloco que desaparece após ser atravessado pelo jogador
   | Vazio        -- ^ Espaço
   deriving (Ord, Eq, Read, Show)
 

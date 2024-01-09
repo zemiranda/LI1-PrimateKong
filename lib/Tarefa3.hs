@@ -13,9 +13,11 @@ import Tarefa1
 
 movimenta :: Semente -> Tempo -> Jogo -> Jogo
 movimenta semente dt jogo@(Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) = 
-    let gravidadeJogador = jogadorGravidade jogadorD mapaD
+    let (Mapa (posI,dirI) posf matriz) = (mapaD)
+        gravidadeJogador = jogadorGravidade jogadorD mapaD
         jogadorMovimentado = movimentaJogador dt gravidadeJogador mapaD 
-    in jogo { jogador = jogadorMovimentado }
+        mapaAtualizado = (Mapa (posI,dirI) posf (unconcat 15 (mudaAlcapao (concat matriz) jogadorD)))
+    in jogo { jogador = jogadorMovimentado, mapa = mapaAtualizado}
 
 jogadorGravidade ::Personagem -> Mapa -> Personagem 
 jogadorGravidade jogador@(Personagem { posicao = (x,y) , velocidade = (xVel, yVel) , querSaltar = quer ,emEscada = emEsc }) mapa
@@ -51,11 +53,6 @@ desapareceInimigo inimigos@(inimigo@(Personagem { vida = vidaI , posicao = (xi,y
  = inimigo { posicao = (2000,2000) } : desapareceInimigo inimigos
                                                                                          | otherwise = desapareceInimigo inimigos
 
-gravidadeP :: Personagem -> Mapa -> Personagem
-gravidadeP personagem@(Personagem { posicao = (x, y),  tamanho = (l,a), tipo = Jogador }) mapa 
-  | colisoesChao mapa personagem = personagem 
-  | otherwise = personagem { posicao = (x,y-10)}
-
 
 colisoesChao :: Mapa -> Personagem -> Bool
 colisoesChao (Mapa ((xi,yi),d) (xf,yf) []) _ = False
@@ -72,6 +69,9 @@ colisoesChaoLinha (h:t) personagem
 colisoesChaoAux :: Bloco -> Personagem -> Bool
 colisoesChaoAux (Plataforma (xs, ys)) (Personagem {posicao = (x, y)})
     |(round(y - 22) <= round(ys + 20) && (y-20)>(ys+15) ) && (x < xs + 30 && x > xs - 30) = True
+    | otherwise = False
+colisoesChaoAux (Alcapao (xs,ys) False _) (Personagem {posicao = (x,y)})
+    |((x + 5) >= (xs - 20) && (x - 5) <= (xs + 20)) && ((y-20) <= (ys+20) && (y - 20) >= ys) = True
     | otherwise = False
 colisoesChaoAux _ (Personagem {posicao = (x, _)}) = False
 
@@ -107,9 +107,10 @@ limiteMapaX dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)})
 
 
 limiteMapaY :: Float -> Personagem -> Mapa -> Double
-limiteMapaY dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t)) 
+limiteMapaY dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)}) mapa@(Mapa ((xi,yi),d) (xf,yf) matriz@(linha:t)) 
             | y < -380 = -380
             | y > 380 = 380
+            | (colisoesChao mapa jogador) && not (querSaltar jogador)= y
             | not (querSaltar jogador) && (colisoesChao mapa jogador) = y
             |otherwise = (y + (realToFrac yVel) * (realToFrac dt)) 
 
@@ -146,7 +147,29 @@ currentBlocks world ((Blocks x y):t) = if round (yPos world) == round y+40
 -}
 
 
+-- Funçao que checa se o personagem está no alcapao
+--Alcapao (Double, Double) Bool
+-- Usada so para verificaçao
 
+tempoAlcapao :: Tempo
+tempoAlcapao = 60
+
+mudaAlcapao :: [Bloco] -> Personagem -> [Bloco]
+mudaAlcapao [] jogador = []
+mudaAlcapao (h@(Alcapao (xs,ys) False tempo):t) jogador@(Personagem{ posicao = (x,y)})
+ | tempo >= 1 && tempo < tempoAlcapao = (Alcapao (xs,ys) False (tempo+1)):mudaAlcapao t jogador
+ | tempo >= tempoAlcapao = abreAlcapao h:mudaAlcapao t jogador
+ |((x + 5) >= (xs - 20) && (x - 5) <= (xs + 20)) && ((y-20) <= (ys+20) && (y - 20) >= ys) = (Alcapao (xs,ys) False (1)):mudaAlcapao t jogador
+ | otherwise = h:mudaAlcapao t jogador
+mudaAlcapao (h:t) jogador = h:mudaAlcapao t jogador
+
+abreAlcapao :: Bloco -> Bloco
+abreAlcapao (Alcapao pos False tempoAlcapao) = (Alcapao pos True tempoAlcapao)
+
+--Funçao para dar unconcat á matriz
+unconcat :: Int -> [Bloco] -> [[Bloco]]
+unconcat _ [] = []
+unconcat n xs = take n xs : unconcat n (drop n xs)
 
 
 

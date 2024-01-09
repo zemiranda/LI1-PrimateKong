@@ -80,7 +80,7 @@ isPlataforma (Plataforma _) = True
 isPlataforma _ = False
 
 isAlcapao :: Bloco -> Bool
-isAlcapao (Alcapao _ _) = True
+isAlcapao (Alcapao _ _ _) = True
 isAlcapao _ = False
 
 
@@ -94,8 +94,8 @@ validaEscadaCimaBaixo (colunas:t) |escadaPlataformaAux colunas = validaEscadaCim
       escadaPlataformaAux [a] = True 
       escadaPlataformaAux (Vazio:(Escada (x,y)):t) = False
       escadaPlataformaAux ((Escada (x,y)):Vazio:t) = False
-      escadaPlataformaAux ((Alcapao (xs,ys) _):(Escada (x,y)):t) = False
-      escadaPlataformaAux ((Escada (x,y)):(Alcapao (xs,ys) _):t) = False
+      escadaPlataformaAux ((Alcapao (xs,ys) _ _):(Escada (x,y)):t) = False
+      escadaPlataformaAux ((Escada (x,y)):(Alcapao (xs,ys) _ _):t) = False
       escadaPlataformaAux (a:b:t) = escadaPlataformaAux (b:t)
 
 ----------------------------------------------------------VERIFICAR COLECIONAVEIS--------------------------------------------------------------------
@@ -116,7 +116,7 @@ validaColecionavelAux2 (tipo,(x,y)) [] = True
 validaColecionavelAux2 (tipo,(x,y)) ((Plataforma (xs, ys)):t) 
         | validaColecionavelAux3 (tipo,(x,y)) (xs,ys) = validaColecionavelAux2 (tipo,(x,y)) t 
         | otherwise = False
-validaColecionavelAux2 (tipo,(x,y)) ((Alcapao (xs, ys) existe):t) 
+validaColecionavelAux2 (tipo,(x,y)) ((Alcapao (xs, ys) existe _):t) 
        | validaColecionavelAux3 (tipo,(x,y)) (xs,ys) = validaColecionavelAux2 (tipo,(x,y)) t 
        | otherwise = False
 validaColecionavelAux2 (tipo,(x,y)) ((Escada (xs, ys)):t) 

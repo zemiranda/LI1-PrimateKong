@@ -28,9 +28,9 @@ atualizaInimigos (acaoI:t) (inimigo:t2) = (inimigo:t2)
 
 atualizaJogador :: Maybe Acao -> Personagem -> Mapa -> Personagem 
 atualizaJogador (Just AndarDireita) jogador@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }) mapa
- = jogador { velocidade = (100,yVel) , direcao = Este} 
+ = jogador { velocidade = (125,yVel) , direcao = Este} 
 atualizaJogador (Just AndarEsquerda) jogador@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir })  mapa
- = jogador { velocidade = ((-100,yVel)) , direcao = Oeste}
+ = jogador { velocidade = ((-125,yVel)) , direcao = Oeste}
 atualizaJogador (Just Parar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) , querSaltar = quer }) mapa
     =  jogador { velocidade = (0,yVel)}  
 atualizaJogador (Just Subir) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) , emEscada = emEsc }) mapa@(Mapa (pos,dire) posf matriz)
@@ -49,7 +49,7 @@ atualizaJogador acao jogador mapa = jogador
 colideEscada :: [Bloco] -> Personagem -> Bool 
 colideEscada [] jogador = False 
 colideEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscada = emEsc })
-    |((x + 15) >= (xs - 20) && (x - 15) <= (xs + 20)) && ((y + 20) >= (ys - 20) && (y - 20) <= (ys + 20)) = True
+    |((x + 5) >= (xs - 20) && (x - 5) <= (xs + 20)) && ((y + 20) >= (ys - 20) && (y - 20) <= (ys + 20)) = True
     | otherwise = colideEscada t jogador 
 colideEscada (bloco:t) jogador = colideEscada t jogador 
 
@@ -57,6 +57,6 @@ colideEscada (bloco:t) jogador = colideEscada t jogador
 colideTopoEscada :: [Bloco] -> Personagem -> Bool 
 colideTopoEscada [] jogador = False 
 colideTopoEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscada = emEsc }) 
- |(((x + 15) >= (xs - 20) && (x - 15) <= (xs + 20)) && (y >= (ys + 20) && (y <= (ys + 80)))) && not emEsc = True
+ |(((x) >= (xs - 20) && (x) <= (xs + 20)) && (y >= (ys + 20) && (y <= (ys + 80)))) && not emEsc = True
  | otherwise = colideTopoEscada t jogador 
 colideTopoEscada (h:t) jogador = colideTopoEscada t jogador 

@@ -15,7 +15,7 @@ mapa1 = [
  ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
- ['B','B','B','B','B','B','B','B','V','V','B','B','B','B','B'],
+ ['B','B','B','A','B','B','B','B','V','V','B','B','A','B','B'],
  ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
@@ -27,7 +27,7 @@ mapa1 = [
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
- ['B','B','B','B','V','B','B','B','B','B','B','B','B','B','B'],
+ ['B','B','B','B','B','B','B','B','B','B','B','B','B','B','B'],
  ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
  ['V','V','V','V','E','V','V','V','V','B','V','V','V','V','V'],
  ['V','V','V','V','E','V','B','V','V','B','V','V','V','V','V'],
@@ -47,7 +47,7 @@ listaBlocosAux ((x, y, letra):t)
   | letra == 'B' = Plataforma (x, y) : listaBlocosAux t
   | letra == 'E' = Escada (x, y) : listaBlocosAux t
   | letra == 'V' = Vazio : listaBlocosAux t
-  | letra == 'A' = Alcapao (x, y) True : listaBlocosAux t
+  | letra == 'A' = Alcapao (x, y) False 0: listaBlocosAux t
   | otherwise = listaBlocosAux t
 
 listaBlocos :: [[(Double, Double, Char)]] -> [[Bloco]]
