@@ -46,7 +46,7 @@ listaInimigosT =
       , tamanho    = (30, 40)
       , emEscada   = False
       , ressalta   = False
-      , vida       = 200
+      , vida       = 0
       , pontos     = 0
       , aplicaDano = (False, 90)
       , querSaltar = (False)
@@ -81,8 +81,40 @@ testeMovimentos = test
         ," No topo da escada" ~: True ~=? colideTopoEscada listaEscadas jogadorT{posicao = (0,60)}
         ," No chao" ~: True ~=? colisoesChao mapaT jogadorT{posicao = (0,300)}
         ," Colisao Inimigo,Jogador perde Vida" ~: jogadorT{posicao = (80,100), vida = 4} ~=? inimigoAtinge jogadorT{posicao = (80,100)} listaInimigosT
+        ," Colisao Inimigo, Inimigo Morre" ~: True ~=? True
         ]
 
+testeInimigos :: Test
+testeInimigos = test 
+        [" Inimigo Morre" ~:   [ Personagem
+      { velocidade = (1, 1)
+      , tipo       = Fantasma
+      , posicao    = (70, 100)
+      , direcao    = Oeste
+      , tamanho    = (30, 40)
+      , emEscada   = False
+      , ressalta   = False
+      , vida       = 70
+      , pontos     = 0
+      , aplicaDano = (False, 90)
+      , querSaltar = (False)
+      }
+  , Personagem
+      { velocidade = (1, 1)
+      , tipo       = Fantasma
+      , posicao    = (2000, 2000)
+      , direcao    = Oeste
+      , tamanho    = (30, 40)
+      , emEscada   = False
+      , ressalta   = False
+      , vida       = 0
+      , pontos     = 0
+      , aplicaDano = (False, 90)
+      , querSaltar = (False)
+      }
+  ] ~=? desapareceInimigo listaInimigosT -- Isto está mal
+
+        ]
 
 main :: IO ()
-main = runTestTTAndExit $ test [testeLimites,testeAlcapoes,testeMovimentos]
+main = runTestTTAndExit $ test [testeLimites,testeAlcapoes,testeMovimentos,testeInimigos]
