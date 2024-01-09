@@ -50,7 +50,7 @@ colideI (x,y) (l,a) Oeste (xi,yi) (li,ai)
 desapareceInimigo :: [Personagem] -> [Personagem]
 desapareceInimigo [] = []
 desapareceInimigo inimigos@(inimigo@(Personagem { vida = vidaI , posicao = (xi,yi) }):t) | vidaI == 0 
- = inimigo { posicao = (2000,2000) } : desapareceInimigo (tailinimigos)
+ = inimigo { posicao = (2000,2000) } : desapareceInimigo (tail inimigos)
                                                                                          | otherwise = inimigo:desapareceInimigo (tail inimigos)
 
 
