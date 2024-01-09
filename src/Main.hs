@@ -148,14 +148,25 @@ drawAlcapaoAux imgs (Alcapao (x,y) existe)|existe = Translate (realToFrac x) (re
 
 
 reage :: Event  -> PrimateKong -> IO PrimateKong
-reage (EventKey (SpecialKey KeyRight) Down _ _) primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just AndarDireita) jogoA }
-reage (EventKey (SpecialKey KeyLeft) Down _ _)primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just AndarEsquerda) jogoA }
-reage (EventKey (SpecialKey KeyRight) Up _ _) primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Parar) jogoA }
-reage (EventKey (SpecialKey KeyLeft) Up _ _) primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Parar) jogoA }
-reage (EventKey (SpecialKey KeyUp) Down _ _) primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Saltar) jogoA }
-reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) Nothing jogoA }
+reage (EventKey (SpecialKey KeyRight) Down _ _) primata@(PrimateKong { jogo = jogoA  }) = 
+  return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just AndarDireita) jogoA }
+reage (EventKey (SpecialKey KeyLeft) Down _ _)primata@(PrimateKong { jogo = jogoA  }) = 
+  return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just AndarEsquerda) jogoA }
+reage (EventKey (SpecialKey KeyRight) Up _ _) primata@(PrimateKong { jogo = jogoA  }) = 
+  return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Parar) jogoA }
+reage (EventKey (SpecialKey KeyLeft) Up _ _) primata@(PrimateKong { jogo = jogoA  }) = 
+  return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Parar) jogoA }
+reage (EventKey (SpecialKey KeyUp) Down _ _) primata@(PrimateKong { jogo = jogoA }) = 
+  let (Mapa (posI,dirI) posf matriz) = (mapa jogoA)
+  in if colideEscada (concat matriz) (jogador jogoA)
+     then return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Subir) jogoA }
+     else return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Saltar) jogoA }
+reage (EventKey (SpecialKey KeyDown) Down _ _) primata@(PrimateKong { jogo = jogoA  }) = 
+  return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Descer) jogoA }
+reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = 
+  atualiza (acaoInimigos jogoA) Nothing jogoA }
 
-acaoInimigos :: Jogo -> [Maybe Acao] 
+acaoInimigos :: Jogo -> [Maybe Acao]
 acaoInimigos (Jogo { inimigos = inimigosA }) = undefined
 
 main :: IO ()
@@ -176,6 +187,7 @@ main = do
 atualizaPrimata :: Float -> PrimateKong -> IO PrimateKong 
 atualizaPrimata dt primata@(PrimateKong jogoA menuA opcaoA imgsA) = do 
   let jogoA' = movimenta 1 (realToFrac dt) jogoA
-      p = (jogador jogoA)
+      (Mapa (posI,dirI) posf matriz) = (mapa jogoA)
+      p = colideTopoEscada (concat matriz) (jogador jogoA)
   putStrLn (show p)
   return (PrimateKong jogoA' menuA opcaoA imgsA)                

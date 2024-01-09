@@ -33,9 +33,14 @@ atualizaJogador (Just AndarEsquerda) jogador@(Personagem { posicao = (x,y), velo
  = jogador { velocidade = ((-100,yVel)) , direcao = Oeste}
 atualizaJogador (Just Parar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) , querSaltar = quer }) mapa
     =  jogador { velocidade = (0,yVel)}  
-atualizaJogador (Just Saltar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) , emEscada = emEsc }) mapa@(Mapa (pos,dire) posf matriz)
+atualizaJogador (Just Subir) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) , emEscada = emEsc }) mapa@(Mapa (pos,dire) posf matriz)
     | (colisoesChao mapa jogador) && (colideEscada (concat matriz) jogador) && not emEsc = jogador { posicao = (x,(y+9)), velocidade = (0,50),emEscada = True}
+    | otherwise = jogador 
+atualizaJogador (Just Saltar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) , emEscada = emEsc }) mapa@(Mapa (pos,dire) posf matriz)
     | (colisoesChao mapa jogador) = jogador { posicao = (x,y+2) , velocidade = (xVel,300), querSaltar = True } 
+    | otherwise = jogador 
+atualizaJogador (Just Descer) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) , emEscada = emEsc }) mapa@(Mapa (pos,dire) posf matriz)
+    | (colisoesChao mapa jogador) && (colideTopoEscada (concat matriz) jogador) = jogador { posicao = (x,(y-7)), velocidade = (0,-50),emEscada = True}
     | otherwise = jogador 
 atualizaJogador Nothing jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) }) mapa
     = jogador 
@@ -47,3 +52,11 @@ colideEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscad
     |((x + 15) >= (xs - 20) && (x - 15) <= (xs + 20)) && ((y + 20) >= (ys - 20) && (y - 20) <= (ys + 20)) = True
     | otherwise = colideEscada t jogador 
 colideEscada (bloco:t) jogador = colideEscada t jogador 
+
+
+colideTopoEscada :: [Bloco] -> Personagem -> Bool 
+colideTopoEscada [] jogador = False 
+colideTopoEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscada = emEsc }) 
+ |(((x + 15) >= (xs - 20) && (x - 15) <= (xs + 20)) && (y >= (ys + 20) && (y <= (ys + 80)))) && not emEsc = True
+ | otherwise = colideTopoEscada t jogador 
+colideTopoEscada (h:t) jogador = colideTopoEscada t jogador 
