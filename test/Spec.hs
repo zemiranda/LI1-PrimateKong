@@ -7,6 +7,9 @@ import Tarefa1
 import Tarefa2
 import Tarefa3
 import Tarefa4
+-- ----
+import Tarefa1Spec
+--import Tarefa2Spec
 
 jogadorT :: Personagem
 jogadorT = Personagem
@@ -117,5 +120,7 @@ testeInimigos = test
 
         ]
 
+-- NENHUMA DAS FUNCOES ACIMA ESTA A SER USADAa
+
 main :: IO ()
-main = runTestTTAndExit $ test [testeLimites,testeAlcapoes,testeJogador,testeInimigos]
+main = runTestTTAndExit $ test [testesTarefa1]

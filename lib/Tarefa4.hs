@@ -14,6 +14,8 @@ import LI12324
 
 import Tarefa3
 
+import Tarefa1
+
 
 atualiza :: [Maybe Acao] -> Maybe Acao -> Jogo -> Jogo
 atualiza listaAInimigos acao jogo@(Jogo { mapa = mapaA , inimigos = listaI , colecionaveis = listaCol , jogador = jogadorA }) = 
