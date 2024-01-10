@@ -75,13 +75,14 @@ testeAlcapoes = test
         , " Abrir Alcapao especifico" ~: [Alcapao (0,0) True 120, Alcapao (100,10) False 0] ~=? mudaAlcapao listaAlcapoes (jogadorT{posicao = (0,20)})  
         ]
 
-testeMovimentos :: Test
-testeMovimentos = test
+testeJogador :: Test
+testeJogador = test
         [" Em escada" ~: True ~=? colideEscada listaEscadas jogadorT{posicao = (0,20)}
         ," No topo da escada" ~: True ~=? colideTopoEscada listaEscadas jogadorT{posicao = (0,60)}
         ," No chao" ~: True ~=? colisoesChao mapaT jogadorT{posicao = (0,300)}
         ," Colisao Inimigo,Jogador perde Vida" ~: jogadorT{posicao = (80,100), vida = 4} ~=? inimigoAtinge jogadorT{posicao = (80,100)} listaInimigosT
         ," Colisao Inimigo, Inimigo Morre" ~: True ~=? True
+        ," Desarmar" ~: jogadorT{aplicaDano = (False, 0)} ~=? desarmar jogadorT{aplicaDano = (True,0)}
         ]
 
 testeInimigos :: Test
@@ -112,9 +113,9 @@ testeInimigos = test
       , aplicaDano = (False, 90)
       , querSaltar = (False)
       }
-  ] ~=? desapareceInimigo listaInimigosT -- Isto está mal
+  ] ~=? desapareceInimigo listaInimigosT
 
         ]
 
 main :: IO ()
-main = runTestTTAndExit $ test [testeLimites,testeAlcapoes,testeMovimentos,testeInimigos]
+main = runTestTTAndExit $ test [testeLimites,testeAlcapoes,testeJogador,testeInimigos]
