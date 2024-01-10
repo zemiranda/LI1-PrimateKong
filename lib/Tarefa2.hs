@@ -11,7 +11,21 @@ module Tarefa2 where
 import LI12324
 
 valida :: Jogo -> Bool
-valida = undefined
+valida (Jogo mapa@(Mapa a pos matriz) inimigos colecionaveis jogador) = 
+  validaPlataforma mapa &&
+  larguraAlcapao 40 jogador &&
+  validaEscadaLados matriz (plataformasComEscadas matriz) &&
+  --validaEscadaCimaBaixo matriz &&
+  null (validaFimEscadas (listaDeEscadas $ concat matriz) (concat matriz)) &&
+  validaColecionavel colecionaveis mapa &&
+  validaVidaFant inimigos &&
+  validaRessalta (jogador:inimigos) &&
+  validaNumeroInimigos inimigos && 
+  validaPosInimigos inimigos jogador
+
+
+
+
 
 -----------------------------------------------------VERIFICAR PLATAFORMA-------------------------------------------------------------------
 validaPlataforma :: Mapa -> Bool
@@ -82,8 +96,8 @@ isPlataforma _ = False
 isAlcapao :: Bloco -> Bool
 isAlcapao (Alcapao _ _ _) = True
 isAlcapao _ = False
-
-
+{-}
+-- ESta funcao esta mal
 validaEscadaCimaBaixo :: [[Bloco]] -> Bool
 validaEscadaCimaBaixo [] = True
 validaEscadaCimaBaixo (colunas:t) |escadaPlataformaAux colunas = validaEscadaCimaBaixo t
@@ -97,6 +111,23 @@ validaEscadaCimaBaixo (colunas:t) |escadaPlataformaAux colunas = validaEscadaCim
       escadaPlataformaAux ((Alcapao (xs,ys) _ _):(Escada (x,y)):t) = False
       escadaPlataformaAux ((Escada (x,y)):(Alcapao (xs,ys) _ _):t) = False
       escadaPlataformaAux (a:b:t) = escadaPlataformaAux (b:t)
+-}
+listaDeEscadas :: [Bloco] -> [Bloco]
+listaDeEscadas [] = []
+listaDeEscadas (escada@(Escada a):t) = (Escada a):listaDeEscadas t
+listaDeEscadas (_:t) = listaDeEscadas t
+ 
+validaFimEscadas :: [Bloco] -> [Bloco] -> [Bloco]
+validaFimEscadas [] _ = []
+validaFimEscadas (escada@(Escada (x,y)):t) matriz = ((validaFimEscadasAux (Escada (x,y)) matriz) ++ validaFimEscadas t matriz)
+
+validaFimEscadasAux :: Bloco -> [Bloco] -> [Bloco]
+validaFimEscadasAux _ [] = []
+validaFimEscadasAux escada@(Escada (x,y)) ((Alcapao (xs,ys) _ _):t)
+ | (x == xs && y+40 == ys) || (x == xs && y-40 == ys) = [escada]
+ | otherwise = validaFimEscadasAux escada t
+validaFimEscadasAux escada (_:t) = validaFimEscadasAux escada t
+
 
 ----------------------------------------------------------VERIFICAR COLECIONAVEIS--------------------------------------------------------------------
 
@@ -148,3 +179,13 @@ validaRessalta ((Personagem { ressalta = False , tipo = Jogador }):t) = validaRe
 validaRessalta ((Personagem { ressalta = True , tipo = Jogador }):t) = False
 validaRessalta ((Personagem { ressalta = False , tipo = Fantasma }):t) = False
 validaRessalta (Personagem {}:t) = validaVidaFant t
+
+validaNumeroInimigos :: [Personagem] -> Bool
+validaNumeroInimigos inimigos = length inimigos >= 2
+
+validaPosInimigos :: [Personagem] -> Personagem -> Bool
+validaPosInimigos [] _ = True
+validaPosInimigos inimigos@((Personagem {posicao = (xs,ys)}):t) jogador@(Personagem {posicao = (x,y)}) 
+  --(length $ filter (\Personagem {posicao =(xs,ys)} -> x /= xs && y /= ys) inimigos) == 0
+ | xs == x && ys == y = False
+ | otherwise = validaPosInimigos t jogador

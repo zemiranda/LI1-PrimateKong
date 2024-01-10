@@ -10,19 +10,27 @@ mapa01 =
   Mapa
     ((8.5, 6.5), Este)
     (5, 1.5)
-    [ ['V', 'V', 'V', 'V', 'V', 'V', 'V', 'V', 'V', 'V'],
-      ['V', 'V', 'V', 'V', 'V', 'V', 'V', 'V', 'V', 'V'],
-      ['V', 'V', 'V', 'P', 'P', 'P', 'P', 'V', 'V', 'V'],
-      ['V', 'V', 'V', 'E', 'V', 'V', 'E', 'V', 'V', 'V'],
-      ['V', 'V', 'V', 'E', 'V', 'V', 'E', 'V', 'V', 'V'],
-      ['V', 'V', 'P', 'P', 'P', 'P', 'P', 'P', 'V', 'V'],
-      ['V', 'V', 'E', 'V', 'V', 'V', 'V', 'E', 'V', 'V'],
-      ['V', 'V', 'E', 'V', 'V', 'V', 'V', 'E', 'V', 'V'],
-      ['V', 'P', 'P', 'P', 'A', 'P', 'P', 'P', 'P', 'V'],
-      ['V', 'E', 'V', 'V', 'V', 'V', 'V', 'V', 'E', 'V'],
-      ['V', 'E', 'V', 'V', 'V', 'V', 'V', 'V', 'E', 'V'],
-      ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P']
-    ]
+    (listaBlocos (f [
+ ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['B','B','B','A','B','B','B','B','V','V','B','B','A','B','B'],
+ ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
+ ['B','B','B','B','B','V','B','B','V','V','B','B','B','B','B'],
+ ['V','V','V','V','V','V','E','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','E','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','E','V','V','V','V','V','V','V','V'],
+ ['B','B','A','B','B','B','B','B','V','V','B','B','B','B','B'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['B','B','B','B','B','B','B','B','B','B','B','B','B','B','B'],
+ ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','E','V','V','V','V','B','V','V','V','V','V'],
+ ['V','V','V','V','E','V','B','V','V','B','V','V','V','V','V'],
+ ['B','B','B','B','B','B','B','B','B','B','B','B','B','B','B']](-280, 380)))
 
 inimigoModelo =
   Personagem
@@ -71,20 +79,27 @@ mapa02 =
   Mapa
     ((8.5, 6.5), Este)
     (5, 1.5)
-    [ ['V', 'V', 'V', 'V', 'V', 'V', 'V', 'V', 'V', 'V'],
-      ['V', 'V', 'V', 'V', 'V', 'V', 'V', 'V', 'V', 'V'],
-      ['V', 'V', 'V', 'P', 'P', 'P', 'P', 'V', 'V', 'V'],
-      ['V', 'V', 'V', 'E', 'V', 'V', 'E', 'V', 'V', 'V'],
-      ['V', 'V', 'V', 'E', 'V', 'V', 'E', 'V', 'V', 'V'],
-      ['V', 'V', 'P', 'P', 'P', 'P', 'P', 'P', 'V', 'V'],
-      ['V', 'V', 'E', 'V', 'V', 'V', 'V', 'E', 'V', 'V'],
-      ['V', 'V', 'E', 'V', 'V', 'V', 'V', 'E', 'V', 'V'],
-      ['V', 'P', 'P', 'P', 'A', 'P', 'P', 'P', 'P', 'V'],
-      ['V', 'E', 'V', 'V', 'V', 'V', 'V', 'V', 'E', 'V'],
-      ['V', 'E', 'V', 'V', 'V', 'V', 'V', 'V', 'E', 'V'],
-      ['P', 'P', 'V', 'P', 'P', 'P', 'P', 'P', 'P', 'P']
-    ]
-
+    (listaBlocos (f [
+ ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['B','B','B','A','B','B','B','B','V','V','B','B','A','B','B'],
+ ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
+ ['V','V','V','B','B','V','B','B','V','V','B','B','B','B','B'],
+ ['V','V','V','V','V','V','E','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','E','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','E','V','V','V','V','V','V','V','V'],
+ ['B','B','A','B','B','B','B','B','V','V','B','B','B','B','B'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['B','B','B','B','B','B','B','B','B','B','B','B','B','B','B'],
+ ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','E','V','V','V','V','B','V','V','V','V','V'],
+ ['V','V','V','V','E','V','B','V','V','B','V','V','V','V','V'],
+ ['B','B','B','B','B','V','V','V','V','B','B','B','B','B','B']](-280, 380)))
 teste02 :: Test
 teste02 = "T02: Jogo é inválido porque não tem chão completo" ~: False ~=? valida jogo01 {mapa = mapa02}
 
@@ -95,7 +110,7 @@ teste03 = TestLabel "T03" $ test [testeA, testeB]
     testeB = "B: Jogador não pode ressaltar" ~: False ~=? valida jogo01 {jogador = jogadorParado {ressalta = True}}
 
 teste04 :: Test
-teste04 = "T04: Se na posição inicial um inimigo colidir com a posição inicial do jogador, o jogo é inválido" ~: False ~=? valida jogo01 {inimigos = [inimigoModelo {posicao = (8.0, 6.0)}, inimigoModelo]}
+teste04 = "T04: Se na posição inicial um inimigo colidir com a posição inicial do jogador, o jogo é inválido" ~: False ~=? valida jogo01 {inimigos = [inimigoModelo {posicao = (8.5, 6.5)}, inimigoModelo]}
 
 teste05 :: Test
 teste05 = "T05: Para o jogo ser válido precisa de ter pelo menos dois inimigos" ~: False ~=? valida jogo01 {inimigos = [inimigoModelo]}
@@ -108,19 +123,27 @@ mapa03 =
   Mapa
     ((8.5, 6.5), Este)
     (5, 1.5)
-    [ ['V', 'V', 'V', 'V', 'V', 'V', 'V', 'V', 'V', 'V'],
-      ['V', 'V', 'V', 'V', 'V', 'V', 'V', 'V', 'V', 'V'],
-      ['V', 'V', 'V', 'A', 'P', 'P', 'P', 'V', 'V', 'V'],
-      ['V', 'V', 'V', 'E', 'V', 'V', 'E', 'V', 'V', 'V'],
-      ['V', 'V', 'V', 'E', 'V', 'V', 'E', 'V', 'V', 'V'],
-      ['V', 'V', 'P', 'P', 'P', 'P', 'P', 'P', 'V', 'V'],
-      ['V', 'V', 'E', 'V', 'V', 'V', 'V', 'E', 'V', 'V'],
-      ['V', 'V', 'E', 'V', 'V', 'V', 'V', 'E', 'V', 'V'],
-      ['V', 'P', 'P', 'P', 'A', 'P', 'P', 'P', 'P', 'V'],
-      ['V', 'E', 'V', 'V', 'V', 'V', 'V', 'V', 'E', 'V'],
-      ['V', 'E', 'V', 'V', 'V', 'V', 'V', 'V', 'E', 'V'],
-      ['P', 'P', 'V', 'P', 'P', 'P', 'P', 'P', 'P', 'P']
-    ]
+   ( listaBlocos (f [
+ ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['B','B','B','A','B','B','B','B','V','V','B','B','A','B','B'],
+ ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
+ ['B','B','B','B','B','V','A','B','V','V','B','B','B','B','B'],
+ ['V','V','V','V','V','V','E','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','E','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','E','V','V','V','V','V','V','V','V'],
+ ['B','B','A','B','B','B','B','B','V','V','A','B','B','B','B'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['B','B','B','B','B','B','B','B','B','B','B','B','B','B','B'],
+ ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','E','V','V','V','V','B','V','V','V','V','V'],
+ ['V','V','V','V','E','V','B','V','V','B','V','V','V','V','V'],
+ ['B','B','B','B','B','B','B','B','B','B','B','B','B','B','B']](-280, 380)))
 
 teste07 :: Test
 teste07 = "T07: As 'E's não podem terminar em 'A'" ~: False ~=? valida jogo01 {mapa = mapa03}
