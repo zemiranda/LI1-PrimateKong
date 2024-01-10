@@ -41,8 +41,10 @@ data PrimateKong = PrimateKong { jogo :: Jogo
 window :: Display
 window = InWindow "Teste1" (largura, altura) (0, 0)
 
+inimigoTeste = Personagem (100,0) Fantasma (0,0) Oeste (1,1) True True 2 0 (False, 0.0) False
+
 initialState :: (Jogo,Menu,Opcoes)
-initialState = ((Jogo mapa2 [] [] jogador5), EmJogo, Jogar) 
+initialState = ((Jogo mapa2 [inimigoTeste] [] jogador5), EmJogo, Jogar) 
 
 
 largura, altura :: Int
@@ -167,7 +169,16 @@ reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo =
   atualiza (acaoInimigos jogoA) Nothing jogoA }
 
 acaoInimigos :: Jogo -> [Maybe Acao]
-acaoInimigos (Jogo { inimigos = inimigosA }) = undefined
+acaoInimigos (Jogo {inimigos = []}) = []
+acaoInimigos jogo@(Jogo { inimigos = ini@(Personagem {posicao = (x,y), velocidade = (xv,yv), direcao = dir}):t, mapa = mapa})
+ | colisoesBordasInimigos ini mapa = (oposta dir):acaoInimigos jogo{inimigos = t}
+ | otherwise = Nothing:acaoInimigos jogo{inimigos = t}
+
+oposta :: Direcao -> Maybe Acao
+oposta Norte = Just Descer
+oposta Sul = Just Subir
+oposta Este = Just AndarEsquerda
+oposta Oeste = Just AndarDireita
 
 main :: IO ()
 main = do
@@ -188,6 +199,6 @@ atualizaPrimata :: Float -> PrimateKong -> IO PrimateKong
 atualizaPrimata dt primata@(PrimateKong jogoA menuA opcaoA imgsA) = do 
   let jogoA' = movimenta 1 (realToFrac dt) jogoA
       (Mapa (posI,dirI) posf matriz) = (mapa jogoA)
-      p = matriz
+      p = inimigos jogoA
   putStrLn (show p)
   return (PrimateKong jogoA' menuA opcaoA imgsA)                

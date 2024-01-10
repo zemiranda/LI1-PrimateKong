@@ -17,7 +17,8 @@ movimenta semente dt jogo@(Jogo { mapa = mapaD , inimigos = inimigosD , colecion
         gravidadeJogador = jogadorGravidade jogadorD mapaD
         jogadorMovimentado = movimentaJogador dt gravidadeJogador mapaD 
         mapaAtualizado = (Mapa (posI,dirI) posf (unconcat 15 (mudaAlcapao (concat matriz) jogadorD)))
-    in jogo { jogador = jogadorMovimentado, mapa = mapaAtualizado}
+        inimigosMovimentados = movimentaInimigos dt inimigosD
+    in jogo { jogador = jogadorMovimentado, mapa = mapaAtualizado, inimigos = inimigosMovimentados}
 
 jogadorGravidade ::Personagem -> Mapa -> Personagem 
 jogadorGravidade jogador@(Personagem { posicao = (x,y) , velocidade = (xVel, yVel) , querSaltar = quer ,emEscada = emEsc }) mapa
@@ -29,7 +30,26 @@ jogadorGravidade jogador@(Personagem { posicao = (x,y) , velocidade = (xVel, yVe
 movimentaJogador :: Tempo -> Personagem -> Mapa -> Personagem 
 movimentaJogador dt jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) }) mapa =
     jogador { posicao = ((limiteMapaX (realToFrac dt) jogador mapa),(limiteMapaY (realToFrac dt) jogador mapa)) , querSaltar = False}
-    
+
+-- Movimentaçao para os Inimigos
+
+movimentaInimigos :: Tempo -> [Personagem] -> [Personagem]
+movimentaInimigos _ [] = []
+movimentaInimigos dt (ini:t) = (movimentaInimigo dt ini):movimentaInimigos dt t
+
+movimentaInimigo :: Tempo -> Personagem -> Personagem
+movimentaInimigo dt inimigo@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) }) =
+    inimigo{posicao = (movimentaInimigoX dt inimigo,movimentaInimigoY dt inimigo)}
+
+movimentaInimigoX :: Tempo -> Personagem -> Double
+movimentaInimigoX dt inimigo@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) })
+ = (x + (realToFrac xVel) * (realToFrac dt))
+
+movimentaInimigoY :: Tempo -> Personagem -> Double
+movimentaInimigoY dt inimigo@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) })
+ = (y + (realToFrac yVel) * (realToFrac dt))
+
+-- -------------------------
 
 modificarVidaI :: Personagem -> [Personagem] -> [Personagem]
 modificarVidaI _ [] = []

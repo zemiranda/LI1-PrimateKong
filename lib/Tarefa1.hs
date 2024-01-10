@@ -12,8 +12,8 @@ import LI12324
 
 limiteMapaX :: Float -> Personagem -> Mapa -> Double
 limiteMapaX dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t)) 
-            | x < -281 = -281
-            | x > 281 = 281
+            | x < -281 = -280
+            | x > 281 = 280
             | (colisoesParede mapa jogador) == (True,False) = (x-1)
             | (colisoesParede mapa jogador) == (False,True) = (x+1)
             |otherwise = (x + (realToFrac xVel) * (realToFrac dt))
@@ -76,4 +76,17 @@ colisoesPersonagens (Personagem {posicao =(x,y), tamanho=(l,a)}) (Personagem {po
                     | ((x+l) > (x2 - l2) && (x-l) < (x2 + l2)) && y - a < y2 + a2 && y + a > y2 - a2 = True
                     | otherwise = False
 
-
+colisoesBordasInimigos :: Personagem -> Mapa -> Bool
+colisoesBordasInimigos inimigo@(Personagem {posicao = (x,y) ,velocidade = (xVel,yVel), direcao = dire, ressalta = ressalta}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t))
+ | round x < -281 = True
+ | round x > 281 = True
+ | (colisoesParede mapa inimigo) == (True,False) = True
+ | (colisoesParede mapa inimigo) == (False,True) = True
+ | otherwise = False
+{-
+Esta função parece nao funcionar bem.
+Apesar dela mandar o sinal de True, devido á velocidade do inimigo
+ele acaba por passar por pouco para fora do mapa
+onde ele fica encravado.
+Assim que se dao mais inputs ao sistema o inimigo funciona melhor 
+-}

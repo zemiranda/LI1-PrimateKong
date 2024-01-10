@@ -24,8 +24,15 @@ atualiza listaAInimigos acao jogo@(Jogo { mapa = mapaA , inimigos = listaI , col
                                       in jogo { inimigos = inimigosAtualiza , jogador = jogadorAtualiza }
 
 
-atualizaInimigos :: [Maybe Acao] -> [Personagem] -> [Personagem] 
-atualizaInimigos (acaoI:t) (inimigo:t2) = (inimigo:t2)
+atualizaInimigos :: [Maybe Acao] -> [Personagem] -> [Personagem]
+atualizaInimigos [] [] = []
+atualizaInimigos ((Just AndarDireita):t) (inimigo@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }):t2) 
+ = (inimigo{posicao = (x,y),velocidade = (50,yVel), direcao = Este}):atualizaInimigos t t2
+atualizaInimigos ((Just AndarEsquerda):t) (inimigo@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }):t2) 
+ = (inimigo{posicao = (x,y),velocidade = (-50,yVel), direcao = Oeste}):atualizaInimigos t t2
+atualizaInimigos (Nothing:t) (inimigo@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }):t2) 
+ = inimigo:atualizaInimigos t t2
+atualizaInimigos acao inimigo = inimigo
 
 
 atualizaJogador :: Maybe Acao -> Personagem -> Mapa -> Personagem 
