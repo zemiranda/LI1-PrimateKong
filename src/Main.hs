@@ -41,7 +41,7 @@ data PrimateKong = PrimateKong { jogo :: Jogo
 window :: Display
 window = InWindow "Teste1" (largura, altura) (0, 0)
 
-inimigoTeste = Personagem (100,0) Fantasma (0,0) Oeste (1,1) True True 2 0 (False, 0.0) False
+inimigoTeste = Personagem (100,350) Fantasma (0,0) Oeste (1,1) True True 2 0 (False, 0.0) False
 
 initialState :: (Jogo,Menu,Opcoes)
 initialState = ((Jogo mapa2 [inimigoTeste] [] jogador5), EmJogo, Jogar) 

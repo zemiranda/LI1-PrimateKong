@@ -78,8 +78,8 @@ colisoesPersonagens (Personagem {posicao =(x,y), tamanho=(l,a)}) (Personagem {po
 
 colisoesBordasInimigos :: Personagem -> Mapa -> Bool
 colisoesBordasInimigos inimigo@(Personagem {posicao = (x,y) ,velocidade = (xVel,yVel), direcao = dire, ressalta = ressalta}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t))
- | round x < -281 = True
- | round x > 281 = True
+ | x < -281 = True
+ | x > 281 = True
  | (colisoesParede mapa inimigo) == (True,False) = True
  | (colisoesParede mapa inimigo) == (False,True) = True
  | otherwise = False
