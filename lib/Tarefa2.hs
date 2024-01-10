@@ -96,7 +96,7 @@ isPlataforma _ = False
 isAlcapao :: Bloco -> Bool
 isAlcapao (Alcapao _ _ _) = True
 isAlcapao _ = False
-{-}
+{-
 -- ESta funcao esta mal
 validaEscadaCimaBaixo :: [[Bloco]] -> Bool
 validaEscadaCimaBaixo [] = True

@@ -89,6 +89,7 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
   --, desenhaEscada imgs (stairsCoords mapa [(0,0)]) PARA QUE ISTO ? TA A DESENHAR OUTRA VEZ ACHO EU
   --, drawEnemies imgs (enemiesList enemies)
   , drawMario imagens jogadorD
+  , drawInimigos imagens inimigosD
     --then Translate (-150) 0 $ color black $ Scale 0.5 0.5 $ Text "Game Over"
     --else drawMario imgs world
     ]
@@ -96,6 +97,13 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
 drawMario :: Imagens -> Personagem -> Picture
 drawMario imgs (Personagem { posicao = (x,y), direcao = dir }) | (dir == Este) =  Translate (realToFrac x) ((realToFrac y) - 3) $ Scale 1.3 1.3 $ getImagem MarioD imgs
                                                                | otherwise = Translate (realToFrac x) ((realToFrac y) - 3) $ Scale 1.3 1.3 $ getImagem MarioE imgs
+
+drawInimigos :: Imagens -> [Personagem] -> Picture
+drawInimigos _ [] = blank
+drawInimigos imgs ((Personagem {posicao = (x,y)}):t) =
+  pictures [(Translate (realToFrac x) (realToFrac y) $ Scale 1 1 $ getImagem MarioD imgs)
+  ,drawInimigos imgs t] 
+
 
 drawMap :: Mapa ->  Imagens -> Picture
 drawMap (Mapa (posI, dir) posF matriz) imgs = Pictures [
@@ -196,9 +204,10 @@ main = do
  --g :: (Jogo,Menu,Opcoes) -> IO Imagens -> PrimateKong   
 
 atualizaPrimata :: Float -> PrimateKong -> IO PrimateKong 
-atualizaPrimata dt primata@(PrimateKong jogoA menuA opcaoA imgsA) = do 
-  let jogoA' = movimenta 1 (realToFrac dt) jogoA
-      (Mapa (posI,dirI) posf matriz) = (mapa jogoA)
-      p = inimigos jogoA
+atualizaPrimata dt primata@(PrimateKong jogoA@(Jogo mapa inimigos colecionaveis jogador) menuA opcaoA imgsA) = do 
+  let jogoA' = movimenta 1 (realToFrac dt) jogoAux
+      jogoAux = jogoA{inimigos = atualizaInimigos (acaoInimigos jogoA) inimigos }
+      (Mapa (posI,dirI) posf matriz) = (mapa)
+      p = inimigos
   putStrLn (show p)
   return (PrimateKong jogoA' menuA opcaoA imgsA)                

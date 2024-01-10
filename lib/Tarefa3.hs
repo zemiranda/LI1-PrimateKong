@@ -47,7 +47,7 @@ movimentaInimigoX dt inimigo@(Personagem { posicao = (x, y), direcao = dir, velo
 
 movimentaInimigoY :: Tempo -> Personagem -> Double
 movimentaInimigoY dt inimigo@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) })
- = (y + (realToFrac yVel) * (realToFrac dt))
+ = y --(y + (realToFrac yVel) * (realToFrac dt))
 
 -- -------------------------
 
