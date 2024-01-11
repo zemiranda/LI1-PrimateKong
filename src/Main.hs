@@ -17,8 +17,10 @@ import LI12324
 type Imagens = [(Imagem,Picture)]
 
 data Imagem
-  =  MarioD
-  | MarioE
+  = MarioD1
+  | MarioE1   
+  | MarioD2
+  | MarioE2
   | MarioC
   | Bloco
   | EscadaI
@@ -44,7 +46,7 @@ data PrimateKong = PrimateKong { jogo :: Jogo
 window :: Display
 window = InWindow "Teste1" (largura, altura) (0, 0)
 
-inimigoTeste = Personagem (100,350) Fantasma (0,0) Oeste (1,1) True True 2 0 (False, 0.0) False
+inimigoTeste = Personagem (-100,0) Fantasma (0,0) Oeste (1,1) True True 2 0 (False, 0.0) False
 
 initialState :: (Jogo,Menu,Opcoes)
 initialState = ((Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5), EmJogo, Jogar) 
@@ -59,9 +61,11 @@ base = -200
 
 carregarImagens :: IO Imagens
 carregarImagens = do
-  marioE <- loadBMP "MarioBitRunE2.bmp"
-  marioD <- loadBMP "MarioBitRunD2.bmp"
-  marioC <- loadBMP "MarioCBit.bmp"
+  marioE1 <- loadBMP "MarioBitRunE1.bmp"
+  marioD1 <- loadBMP "MarioBitRunD1.bmp"
+  marioE2 <- loadBMP "MarioBitRunE2.bmp"
+  marioD2 <- loadBMP "MarioBitRunD2.bmp"
+  --marioC <- loadBMP "MarioCBit.bmp"
   escada <- loadBMP "escadaBit2.bmp"
   bloco <- loadBMP "blocoBit.bmp"
   moeda <- loadBMP "moedaBit.bmp"
@@ -73,9 +77,11 @@ carregarImagens = do
   minimacaco <- loadBMP "MiniMacacoBit.bmp"
   princesa <- loadBMP "PrincesaBit.bmp"
   return
-    [ (MarioD, marioD)
-    , (MarioE, marioE)
-    , (MarioC, marioC)
+    [ (MarioD1, marioD1)
+    , (MarioE1, marioE1)
+    , (MarioD2, marioD2)
+    , (MarioE2, marioE2)
+    --, (MarioC, marioC)
     , (EscadaI, escada)
     , (Bloco, bloco)
     , (MoedaI, moeda)
@@ -99,11 +105,11 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
    --, Translate (xPos world) (yPos world) $ color red $ rectangleSolid characterWidht characterHeight
   --, desenhaEscada imgs (stairsCoords mapa [(0,0)]) PARA QUE ISTO ? TA A DESENHAR OUTRA VEZ ACHO EU
   --, drawEnemies imgs (enemiesList enemies)
-  , drawMario imagens jogadorD
   ,drawPrincesa imagens (-250,310)
   , drawInimigos imagens inimigosD
     --then Translate (-150) 0 $ color black $ Scale 0.5 0.5 $ Text "Game Over"
     --else drawMario imgs world
+  , drawMario imagens jogadorD
     ]
 
 drawPrincesa :: Imagens -> Posicao -> Picture
@@ -112,8 +118,11 @@ drawPrincesa imgs (x,y) =  Translate (realToFrac x) ((realToFrac y) - 2) $ Scale
 
 
 drawMario :: Imagens -> Personagem -> Picture
-drawMario imgs (Personagem { posicao = (x,y), direcao = dir }) | (dir == Este) =  Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem MarioD imgs
-                                                               | otherwise = Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem MarioE imgs
+drawMario imgs (Personagem { posicao = (x,y), direcao = dir }) 
+ | (dir == Este) =  Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ 
+ (if  even $ round x then getImagem MarioD2 imgs else getImagem MarioD1 imgs)
+ | otherwise = Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ 
+ (if even $ round x then getImagem MarioE2 imgs else getImagem MarioE1 imgs)
 
 drawInimigos :: Imagens -> [Personagem] -> Picture
 drawInimigos _ [] = blank
@@ -123,8 +132,8 @@ drawInimigos imgs (inimigo@(Personagem {posicao = (x,y)}):t) =
 
 
 drawInimigosAux :: Imagens -> Personagem -> Picture
-drawInimigosAux imgs (Personagem { posicao = (x,y), direcao = dir }) | (dir == Oeste) =  Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostD imgs
-                                                                     | otherwise = Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostE imgs
+drawInimigosAux imgs (Personagem { posicao = (x,y), direcao = dir }) | (dir == Oeste) =  Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostE imgs
+                                                                     | otherwise = Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostD imgs
 
 
 
