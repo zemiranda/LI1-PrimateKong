@@ -31,6 +31,11 @@ data Imagem
   | AlcapaAberto
   | Fundo
   | Princesa
+  | MarteloI
+  | MarioMarteloCimaD 
+  | MarioMarteloCimaE 
+  | MarioMarteloBaixoD 
+  | MarioMarteloBaixoE
   deriving (Show, Eq)
 
 data Menu = EmJogo | MenuInicial
@@ -39,17 +44,19 @@ data Opcoes = Jogar | Sair
 data PrimateKong = PrimateKong { jogo :: Jogo
                                , menu :: Menu
                                , opcao :: Opcoes
+                               , timer :: Int
                                , imagens :: Imagens
                                }
+
 
 
 window :: Display
 window = InWindow "Teste1" (largura, altura) (0, 0)
 
-inimigoTeste = Personagem (-50,0) Fantasma (100,0) Oeste (1,1) True True 2 0 (False, 0.0) False
+inimigoTeste = Personagem (50,0) Fantasma (100,0) Este (1,1) True True 2 0 (False, 0.0) False 0
 
-initialState :: (Jogo,Menu,Opcoes)
-initialState = ((Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5), EmJogo, Jogar) 
+initialState :: (Jogo,Menu,Opcoes,Int)
+initialState = ((Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5), EmJogo, Jogar, 0) 
 
 
 largura, altura :: Int
@@ -76,11 +83,19 @@ carregarImagens = do
   fundo <- loadBMP "FundoBit.bmp"
   minimacaco <- loadBMP "MiniMacacoBit.bmp"
   princesa <- loadBMP "PrincesaBit.bmp"
+  marioMCD <- loadBMP "MarioMarteloBitD.bmp" 
+  marioMCE <- loadBMP "MarioMarteloBitE.bmp" 
+  marioMBD <- loadBMP "MarioMarteloBaixoBitD.bmp" 
+  marioMBE <- loadBMP "MarioMarteloBaixoBitE.bmp" 
   return
     [ (MarioD1, marioD1)
     , (MarioE1, marioE1)
     , (MarioD2, marioD2)
     , (MarioE2, marioE2)
+    , (MarioMarteloCimaD , marioMCD)
+    , (MarioMarteloCimaE , marioMCE)
+    , (MarioMarteloBaixoD , marioMBD)
+    , (MarioMarteloBaixoE , marioMBE)
     --, (MarioC, marioC)
     , (EscadaI, escada)
     , (Bloco, bloco)
@@ -92,6 +107,7 @@ carregarImagens = do
     , (MoedaI, moeda)
     , (Fundo,fundo)
     , (Princesa,princesa)
+    ,(MarteloI,minimacaco)
     ]
 
 getImagem :: Imagem -> Imagens -> Picture
@@ -99,7 +115,7 @@ getImagem key dicionario = fromJust $ lookup key dicionario
 
 
 draw :: PrimateKong -> IO Picture
-draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) EmJogo Jogar imagens )  = 
+draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) EmJogo Jogar timer  imagens)  = 
   return $ Pictures
   [ drawMap mapaD colecionaveisD imagens 
    --, Translate (xPos world) (yPos world) $ color red $ rectangleSolid characterWidht characterHeight
@@ -119,10 +135,14 @@ drawPrincesa imgs (x,y) =  Translate (realToFrac x) ((realToFrac y) - 2) $ Scale
 
 
 drawMario :: Imagens -> Personagem -> Picture
-drawMario imgs (Personagem { posicao = (x,y), direcao = dir }) 
- | (dir == Este) =  Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ 
+drawMario imgs (Personagem { posicao = (x,y), direcao = dir, aplicaDano = (armado,tempo)}) 
+ | armado && (dir == Este)  = Translate ((realToFrac x)+5) ((realToFrac y)+4) $ Scale 1 1 $ 
+ (if (mod (round (tempo / 10)) 2 == 0)then getImagem MarioMarteloCimaD imgs else getImagem MarioMarteloBaixoD imgs)
+ | armado && (dir == Oeste)  = Translate ((realToFrac x)-5) ((realToFrac y)+4) $ Scale 0.9 0.9 $ 
+ (if (mod (round (tempo / 10)) 2 == 0) then getImagem MarioMarteloCimaE imgs else getImagem MarioMarteloBaixoE imgs)
+ | (dir == Este) =  Translate (realToFrac x) ((realToFrac y)) $ Scale 0.9 0.9 $ 
  (if  even $ round x then getImagem MarioD2 imgs else getImagem MarioD1 imgs)
- | otherwise = Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ 
+ | otherwise = Translate (realToFrac x) ((realToFrac y)) $ Scale 0.9 0.9 $ 
  (if even $ round x then getImagem MarioE2 imgs else getImagem MarioE1 imgs)
 
 drawInimigos :: Imagens -> [Personagem] -> Picture
@@ -200,12 +220,15 @@ drawColecionavel ::  Imagens -> [(Colecionavel,Posicao)] -> Picture
 drawColecionavel _ [] = blank  
 drawColecionavel imgs ((Moeda, (x,y)): rest) =
   pictures [drawColecionavelAux imgs (Moeda, (x,y)), drawColecionavel imgs rest]
-drawColecionavel imgs (bloco:rest) = drawColecionavel imgs rest  
+drawColecionavel imgs ((Martelo, (x,y)): rest) = 
+  pictures [drawColecionavelAux imgs (Martelo, (x,y)), drawColecionavel imgs rest] 
+drawColecionavel imgs (h:t) = drawColecionavel imgs t
 
 
 drawColecionavelAux ::  Imagens -> (Colecionavel,Posicao) -> Picture
 drawColecionavelAux imgs (Moeda, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 1 1.1 $ (getImagem MoedaI imgs)
-                                       -- = Translate (realToFrac x) (realToFrac y) $ Scale 1 1.1 $ (getImagem AlcapaAberto imgs)
+drawColecionavelAux imgs (Martelo, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 1 1.1 $ (getImagem MarteloI imgs)
+                                       
 
 
 
@@ -221,11 +244,15 @@ reage (EventKey (SpecialKey KeyLeft) Up _ _) primata@(PrimateKong { jogo = jogoA
   return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Parar) jogoA }
 reage (EventKey (SpecialKey KeyUp) Down _ _) primata@(PrimateKong { jogo = jogoA }) = 
   let (Mapa (posI,dirI) posf matriz) = (mapa jogoA)
-  in if colideEscada (concat matriz) (jogador jogoA)
+      (Personagem { aplicaDano = (armado,tempo)}) = (jogador jogoA)
+  in if colideEscada (concat matriz) (jogador jogoA) && not armado
      then return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Subir) jogoA }
      else return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Saltar) jogoA }
-reage (EventKey (SpecialKey KeyDown) Down _ _) primata@(PrimateKong { jogo = jogoA  }) = 
-  return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Descer) jogoA }
+reage (EventKey (SpecialKey KeyDown) Down _ _) primata@(PrimateKong { jogo = jogoA  })= 
+   let (Personagem { aplicaDano = (armado,tempo)}) = (jogador jogoA)
+   in if armado 
+      then return $ primata { jogo = atualiza (acaoInimigos jogoA) (Nothing) jogoA }
+      else return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Descer) jogoA }
 reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = 
   atualiza (acaoInimigos jogoA) Nothing jogoA }
 
@@ -233,9 +260,44 @@ acaoInimigos :: Jogo -> [Maybe Acao]
 acaoInimigos (Jogo {inimigos = []}) = []
 acaoInimigos jogo@(Jogo { inimigos = ini@(Personagem {posicao = (x,y), velocidade = (xv,yv), direcao = dir, querSaltar = quer}):t, mapa = mapa@(Mapa a b matriz)})
  | colisoesBordasInimigos ini mapa = (oposta dir):acaoInimigos jogo{inimigos = t}
- | colideEscada (concat matriz) ini && quer = (Just Subir):acaoInimigos jogo{inimigos = t}
+ | quer = (Just Subir):acaoInimigos jogo{inimigos = t}
 -- | not $ colideEscada (concat matriz) ini && quer = (Just Parar):acaoInimigos jogo{inimigos = t}
  | otherwise = Nothing:acaoInimigos jogo{inimigos = t}
+
+adicionarInimigos :: [Personagem] -> Bool -> [Personagem] 
+adicionarInimigos lista True = let --x' = (randomRIO (-280, 280))
+                                   --y' = (randomRIO (0, 5))
+                                   --randomPos = andares x' y'
+                               in lista ++ [(Personagem { vida = 1, pontos = 0, aplicaDano = (False, 90), querSaltar = (False) , ressalta = True , tamanho = (30, 40) ,posicao = (250,350), tipo= Fantasma , velocidade = (50,0) , direcao = Este , invincibilidade = 0})]
+adicionarInimigos lista False = lista
+
+
+andares x y = let  enemiesY 0 = -340
+                   enemiesY 1 = -180
+                   enemiesY 2 = -20
+                   enemiesY 3 = 140
+                   enemiesY 4 = 300
+              in ( ((floor x))
+                 , enemiesY (floor y))
+  
+  
+
+
+
+inimigo2 :: Personagem
+inimigo2 = Personagem
+  { velocidade = (0, 0)
+  , tipo       = Jogador
+  , posicao    = (0, 350)
+  , direcao    = Este
+  , tamanho    = (30, 40)
+  , emEscada   = False
+  , ressalta   = False
+  , vida       = 5
+  , pontos     = 0
+  , aplicaDano = (True, 90)
+  , querSaltar = (False)
+  }
 
 oposta :: Direcao -> Maybe Acao
 oposta Norte = Just Descer
@@ -255,14 +317,20 @@ main = do
     reage -- inputs
     atualizaPrimata -- updated the world
  where
-   g (jogo,menu,opcoes) imgs = (PrimateKong jogo menu opcoes imgs)
+   g (jogo,menu,opcoes,time) imgs = (PrimateKong jogo menu opcoes time imgs)
  --g :: (Jogo,Menu,Opcoes) -> IO Imagens -> PrimateKong   
 
+
+spawnarInimigo :: Int -> Bool
+spawnarInimigo time = (mod time 360) == 0   
+
 atualizaPrimata :: Float -> PrimateKong -> IO PrimateKong 
-atualizaPrimata dt primata@(PrimateKong jogoA@(Jogo mapa inimigos colecionaveis jogador) menuA opcaoA imgsA) = do 
+atualizaPrimata dt primata@(PrimateKong jogoA@(Jogo mapa inimigos colecionaveis jogador) menuA opcaoA timer imgsA) = do 
   let jogoA' = movimenta 1 (realToFrac dt) jogoAux
-      jogoAux = jogoA{inimigos = atualizaInimigos (acaoInimigos jogoA) inimigos }
+      jogoAux = jogoA{inimigos = atualizaInimigos (acaoInimigos jogoA) (adicionarInimigos inimigos (spawnarInimigo timer)) }
       (Mapa (posI,dirI) posf matriz) = (mapa)
-      p = inimigos
+      timer' = timer+1
+      p = vida jogador
   putStrLn (show p)
-  return (PrimateKong jogoA' menuA opcaoA imgsA)                
+  return (PrimateKong jogoA' menuA opcaoA timer' imgsA )             
+

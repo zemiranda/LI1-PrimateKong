@@ -3,7 +3,7 @@ module Definicoes where
 import LI12324
 
 sementeValor :: Semente
-sementeValor = 436367345433
+sementeValor = 436367344
 
 larguraBloco :: Double
 larguraBloco = 40
@@ -34,7 +34,7 @@ mapa1 = [
  ['B','B','B','B','B','B','B','B','B','B','B','B','B','B','B']]
 
 listaColecionaveis :: [(Colecionavel,Posicao)]
-listaColecionaveis = [(Moeda,(0,0)),(Moeda,(100,0))]
+listaColecionaveis = [(Moeda,(0,0)),(Moeda,(100,0)),(Martelo,(200,0))]
 
 
 f :: [[Char]] -> (Double,Double) -> [[(Double,Double,Char)]]
@@ -98,9 +98,11 @@ jogador5 = Personagem
   , ressalta   = False
   , vida       = 5
   , pontos     = 0
-  , aplicaDano = (True, 90)
+  , aplicaDano = (False, 0)
   , querSaltar = (False)
+  , invincibilidade = 0 
   }
+
 
 --63.333336636424065,-260.333333350718
 
