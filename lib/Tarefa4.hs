@@ -26,6 +26,10 @@ atualiza listaAInimigos acao jogo@(Jogo { mapa = mapaA , inimigos = listaI , col
 
 atualizaInimigos :: [Maybe Acao] -> [Personagem] -> [Personagem]
 atualizaInimigos [] [] = []
+atualizaInimigos ((Just Subir):t) (inimigo@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }):t2)
+ = (inimigo{posicao = (x,y),velocidade = (0,50), direcao = Norte, emEscada = True}):atualizaInimigos t t2
+atualizaInimigos ((Just Parar):t) (inimigo@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }):t2)
+ = (inimigo{posicao = (x,y),velocidade = (x,0),  emEscada = False}):atualizaInimigos t t2
 atualizaInimigos ((Just AndarDireita):t) (inimigo@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }):t2) 
  = (inimigo{posicao = (-280,y),velocidade = (50,yVel), direcao = Este}):atualizaInimigos t t2
 atualizaInimigos ((Just AndarEsquerda):t) (inimigo@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }):t2) 
@@ -46,7 +50,7 @@ atualizaJogador (Just Subir) jogador@(Personagem { posicao = (x,y) , velocidade 
     | (colisoesChao mapa jogador) && (colideEscada (concat matriz) jogador) && not emEsc = jogador { posicao = (x,(y+9)), velocidade = (0,50),emEscada = True}
     | otherwise = jogador 
 atualizaJogador (Just Saltar) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) , emEscada = emEsc }) mapa@(Mapa (pos,dire) posf matriz)
-    | (colisoesChao mapa jogador) = jogador { posicao = (x,y+2) , velocidade = (xVel,200), querSaltar = True } 
+    | (colisoesChao mapa jogador) = jogador { posicao = (x,y+3) , velocidade = (xVel,250), querSaltar = True } 
     | otherwise = jogador 
 atualizaJogador (Just Descer) jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) , emEscada = emEsc }) mapa@(Mapa (pos,dire) posf matriz)
     | (colisoesChao mapa jogador) && (colideTopoEscada (concat matriz) jogador) = jogador { posicao = (x,(y-7)), velocidade = (0,-50),emEscada = True}
@@ -55,12 +59,6 @@ atualizaJogador Nothing jogador@(Personagem { posicao = (x,y) , velocidade = (xV
     = jogador 
 atualizaJogador acao jogador mapa = jogador  
 
-colideEscada :: [Bloco] -> Personagem -> Bool 
-colideEscada [] jogador = False 
-colideEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscada = emEsc })
-    |((x + 5) >= (xs - 20) && (x - 5) <= (xs + 20)) && ((y + 20) >= (ys - 20) && (y - 20) <= (ys + 20)) = True
-    | otherwise = colideEscada t jogador 
-colideEscada (bloco:t) jogador = colideEscada t jogador 
 
 
 colideTopoEscada :: [Bloco] -> Personagem -> Bool 

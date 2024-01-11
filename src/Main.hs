@@ -46,7 +46,7 @@ data PrimateKong = PrimateKong { jogo :: Jogo
 window :: Display
 window = InWindow "Teste1" (largura, altura) (0, 0)
 
-inimigoTeste = Personagem (-100,0) Fantasma (0,0) Oeste (1,1) True True 2 0 (False, 0.0) False
+inimigoTeste = Personagem (-50,0) Fantasma (100,0) Oeste (1,1) True True 2 0 (False, 0.0) False
 
 initialState :: (Jogo,Menu,Opcoes)
 initialState = ((Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5), EmJogo, Jogar) 
@@ -109,6 +109,7 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
   , drawInimigos imagens inimigosD
     --then Translate (-150) 0 $ color black $ Scale 0.5 0.5 $ Text "Game Over"
     --else drawMario imgs world
+  , drawPontos imagens jogadorD
   , drawMario imagens jogadorD
     ]
 
@@ -153,6 +154,9 @@ drawMap (Mapa (posI, dir) posF matriz) listaCol imgs = Pictures [
   -}
   ]
 
+drawPontos :: Imagens -> Personagem -> Picture
+drawPontos imgs (Personagem{pontos = p}) =
+  Translate 225 350 $ color white $ Scale 0.4 0.4 $ Text $ show p
 
 drawBlocks ::  Imagens -> [Bloco] -> Picture
 drawBlocks _ [] = blank  
@@ -227,8 +231,10 @@ reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo =
 
 acaoInimigos :: Jogo -> [Maybe Acao]
 acaoInimigos (Jogo {inimigos = []}) = []
-acaoInimigos jogo@(Jogo { inimigos = ini@(Personagem {posicao = (x,y), velocidade = (xv,yv), direcao = dir}):t, mapa = mapa})
+acaoInimigos jogo@(Jogo { inimigos = ini@(Personagem {posicao = (x,y), velocidade = (xv,yv), direcao = dir, querSaltar = quer}):t, mapa = mapa@(Mapa a b matriz)})
  | colisoesBordasInimigos ini mapa = (oposta dir):acaoInimigos jogo{inimigos = t}
+ | colideEscada (concat matriz) ini && quer = (Just Subir):acaoInimigos jogo{inimigos = t}
+-- | not $ colideEscada (concat matriz) ini && quer = (Just Parar):acaoInimigos jogo{inimigos = t}
  | otherwise = Nothing:acaoInimigos jogo{inimigos = t}
 
 oposta :: Direcao -> Maybe Acao
