@@ -23,9 +23,12 @@ data Imagem
   | Bloco
   | EscadaI
   | MoedaI
-  | Ghost
+  | GhostD
+  | GhostE
   | Alcapa
   | AlcapaAberto
+  | Fundo
+  | Princesa
   deriving (Show, Eq)
 
 data Menu = EmJogo | MenuInicial
@@ -44,7 +47,7 @@ window = InWindow "Teste1" (largura, altura) (0, 0)
 inimigoTeste = Personagem (100,350) Fantasma (0,0) Oeste (1,1) True True 2 0 (False, 0.0) False
 
 initialState :: (Jogo,Menu,Opcoes)
-initialState = ((Jogo mapa2 [inimigoTeste] [] jogador5), EmJogo, Jogar) 
+initialState = ((Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5), EmJogo, Jogar) 
 
 
 largura, altura :: Int
@@ -56,15 +59,19 @@ base = -200
 
 carregarImagens :: IO Imagens
 carregarImagens = do
-  marioE <- loadBMP "marioBitE.bmp"
-  marioD <- loadBMP "marioBit.bmp"
+  marioE <- loadBMP "MarioBitRunE2.bmp"
+  marioD <- loadBMP "MarioBitRunD2.bmp"
   marioC <- loadBMP "MarioCBit.bmp"
   escada <- loadBMP "escadaBit2.bmp"
   bloco <- loadBMP "blocoBit.bmp"
   moeda <- loadBMP "moedaBit.bmp"
-  ghost <- loadBMP "goubaBit.bmp"
+  ghostD <- loadBMP "FantasmaBitD.bmp"
+  ghostE <- loadBMP "FantasmaBitE.bmp"
   alcapa <- loadBMP "alcapaoBit.bmp"
   alcapaAberto <- loadBMP "alcapaoAbertoBit.bmp"
+  fundo <- loadBMP "FundoBit.bmp"
+  minimacaco <- loadBMP "MiniMacacoBit.bmp"
+  princesa <- loadBMP "PrincesaBit.bmp"
   return
     [ (MarioD, marioD)
     , (MarioE, marioE)
@@ -72,9 +79,13 @@ carregarImagens = do
     , (EscadaI, escada)
     , (Bloco, bloco)
     , (MoedaI, moeda)
-    , (Ghost, ghost)
+    , (GhostD, ghostD)
+    , (GhostE, ghostE)
     , (Alcapa, alcapa)
     , (AlcapaAberto, alcapaAberto)
+    , (MoedaI, moeda)
+    , (Fundo,fundo)
+    , (Princesa,princesa)
     ]
 
 getImagem :: Imagem -> Imagens -> Picture
@@ -84,37 +95,53 @@ getImagem key dicionario = fromJust $ lookup key dicionario
 draw :: PrimateKong -> IO Picture
 draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) EmJogo Jogar imagens )  = 
   return $ Pictures
-  [ drawMap mapaD imagens 
+  [ drawMap mapaD colecionaveisD imagens 
    --, Translate (xPos world) (yPos world) $ color red $ rectangleSolid characterWidht characterHeight
   --, desenhaEscada imgs (stairsCoords mapa [(0,0)]) PARA QUE ISTO ? TA A DESENHAR OUTRA VEZ ACHO EU
   --, drawEnemies imgs (enemiesList enemies)
   , drawMario imagens jogadorD
+  ,drawPrincesa imagens (-250,310)
   , drawInimigos imagens inimigosD
     --then Translate (-150) 0 $ color black $ Scale 0.5 0.5 $ Text "Game Over"
     --else drawMario imgs world
     ]
 
+drawPrincesa :: Imagens -> Posicao -> Picture
+drawPrincesa imgs (x,y) =  Translate (realToFrac x) ((realToFrac y) - 2) $ Scale 0.9 0.9 $ getImagem Princesa imgs
+                                                               
+
+
 drawMario :: Imagens -> Personagem -> Picture
-drawMario imgs (Personagem { posicao = (x,y), direcao = dir }) | (dir == Este) =  Translate (realToFrac x) ((realToFrac y) - 3) $ Scale 1.3 1.3 $ getImagem MarioD imgs
-                                                               | otherwise = Translate (realToFrac x) ((realToFrac y) - 3) $ Scale 1.3 1.3 $ getImagem MarioE imgs
+drawMario imgs (Personagem { posicao = (x,y), direcao = dir }) | (dir == Este) =  Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem MarioD imgs
+                                                               | otherwise = Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem MarioE imgs
 
 drawInimigos :: Imagens -> [Personagem] -> Picture
 drawInimigos _ [] = blank
-drawInimigos imgs ((Personagem {posicao = (x,y)}):t) =
-  pictures [(Translate (realToFrac x) (realToFrac y) $ Scale 1 1 $ getImagem MarioD imgs)
+drawInimigos imgs (inimigo@(Personagem {posicao = (x,y)}):t) =
+  pictures [drawInimigosAux imgs inimigo
   ,drawInimigos imgs t] 
 
 
-drawMap :: Mapa ->  Imagens -> Picture
-drawMap (Mapa (posI, dir) posF matriz) imgs = Pictures [
-    drawStairs imgs (concat matriz)
+drawInimigosAux :: Imagens -> Personagem -> Picture
+drawInimigosAux imgs (Personagem { posicao = (x,y), direcao = dir }) | (dir == Oeste) =  Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostD imgs
+                                                                     | otherwise = Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostE imgs
+
+
+
+drawMap :: Mapa -> [(Colecionavel,Posicao)] -> Imagens -> Picture
+drawMap (Mapa (posI, dir) posF matriz) listaCol imgs = Pictures [
+  Translate 0 0 $ Scale 1 1 $ (getImagem Fundo imgs)
+  , drawStairs imgs (concat matriz)
   , drawBlocks imgs (concat matriz)
   , drawAlcapao imgs (concat matriz)
+  , drawColecionavel imgs listaCol
+  {-
   , Translate 0 (300) $ color black $ rectangleSolid 10000 1 -- linha
   , Translate 0 (-340) $ color black $ rectangleSolid 10000 1 -- linha
   , Translate 0 (-180) $ color black $ rectangleSolid 10000 1 -- linha
   , Translate 0 (-20) $ color black $ rectangleSolid 10000 1 -- linha
   , Translate 0 (140) $ color black $ rectangleSolid 10000 1 -- linha
+  -}
   ]
 
 
@@ -151,8 +178,21 @@ drawAlcapao imgs (bloco:rest) = drawAlcapao imgs rest
 
 
 drawAlcapaoAux ::  Imagens -> Bloco -> Picture
-drawAlcapaoAux imgs (Alcapao (x,y) existe tempo)|existe = Translate (realToFrac x) (realToFrac y+10) $ Scale 1 1.1 $ (getImagem Alcapa imgs)
-                                          |otherwise = Translate (realToFrac x) (realToFrac y) $ Scale 1 1.1 $ (getImagem AlcapaAberto imgs)
+drawAlcapaoAux imgs (Alcapao (x,y) existe tempo)|existe = Translate (realToFrac x) (realToFrac y) $ Scale 1 0.9 $ (getImagem AlcapaAberto imgs)
+                                          |otherwise = Translate (realToFrac x) (realToFrac y+13) $ Scale 1 1 $ (getImagem Alcapa imgs)
+
+
+
+drawColecionavel ::  Imagens -> [(Colecionavel,Posicao)] -> Picture
+drawColecionavel _ [] = blank  
+drawColecionavel imgs ((Moeda, (x,y)): rest) =
+  pictures [drawColecionavelAux imgs (Moeda, (x,y)), drawColecionavel imgs rest]
+drawColecionavel imgs (bloco:rest) = drawColecionavel imgs rest  
+
+
+drawColecionavelAux ::  Imagens -> (Colecionavel,Posicao) -> Picture
+drawColecionavelAux imgs (Moeda, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 1 1.1 $ (getImagem MoedaI imgs)
+                                       -- = Translate (realToFrac x) (realToFrac y) $ Scale 1 1.1 $ (getImagem AlcapaAberto imgs)
 
 
 

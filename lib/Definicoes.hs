@@ -33,6 +33,10 @@ mapa1 = [
  ['V','V','V','V','E','V','B','V','V','B','V','V','V','V','V'],
  ['B','B','B','B','B','B','B','B','B','B','B','B','B','B','B']]
 
+listaColecionaveis :: [(Colecionavel,Posicao)]
+listaColecionaveis = [(Moeda,(0,0)),(Moeda,(100,0))]
+
+
 f :: [[Char]] -> (Double,Double) -> [[(Double,Double,Char)]]
 f [] _ = []
 f (h:t) (x, y) = fAux h (x, y) : f t (x, y - 40)

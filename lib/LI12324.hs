@@ -66,8 +66,8 @@ data Entidade
 
 -- | Tipos de items passiveis de ser colecionaveis por um 'Personagem'.
 data Colecionavel
-  = Moeda (Double,Double)
-  | Martelo (Double,Double)
+  = Moeda 
+  | Martelo 
   deriving (Ord, Eq, Read, Show)
 
 -- | Personagem do 'Jogo'.

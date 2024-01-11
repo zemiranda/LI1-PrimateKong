@@ -16,9 +16,12 @@ movimenta semente dt jogo@(Jogo { mapa = mapaD , inimigos = inimigosD , colecion
     let (Mapa (posI,dirI) posf matriz) = (mapaD)
         gravidadeJogador = jogadorGravidade jogadorD mapaD
         jogadorMovimentado = movimentaJogador dt gravidadeJogador mapaD 
+        jogadorColecionaveis = recolherColecionavel jogadorMovimentado colecionaveisD
+        listaColecionaveisMod = tirarColecionavel (snd jogadorColecionaveis) colecionaveisD
         mapaAtualizado = (Mapa (posI,dirI) posf (unconcat 15 (mudaAlcapao (concat matriz) jogadorD)))
         inimigosMovimentados = movimentaInimigos dt inimigosD
-    in jogo { jogador = jogadorMovimentado, mapa = mapaAtualizado, inimigos = inimigosMovimentados}
+    in jogo { jogador = (fst jogadorColecionaveis), colecionaveis = listaColecionaveisMod, mapa = mapaAtualizado, inimigos = inimigosMovimentados}
+
 
 jogadorGravidade ::Personagem -> Mapa -> Personagem 
 jogadorGravidade jogador@(Personagem { posicao = (x,y) , velocidade = (xVel, yVel) , querSaltar = quer ,emEscada = emEsc }) mapa
@@ -79,6 +82,7 @@ inimigoAtinge jogador [] = jogador
 inimigoAtinge jogador@(Personagem{ vida = vidaJ }) (inimigo:t) | colisoesPersonagens jogador inimigo = jogador { vida = vidaJ -1 }
                                                                | otherwise = inimigoAtinge jogador t
 
+{-
 recolherColecionavel :: Personagem -> [Colecionavel] -> [Colecionavel] -> (Personagem,[Colecionavel])
 recolherColecionavel jogador [] listaInicial = (jogador,listaInicial)
 recolherColecionavel jogador@(Personagem{ posicao = (x,y), aplicaDano = (armado, tempoArmado) , pontos = score }) ((Moeda (xs,ys)):t) listaInicial 
@@ -87,6 +91,28 @@ recolherColecionavel jogador@(Personagem{ posicao = (x,y), aplicaDano = (armado,
 recolherColecionavel jogador@(Personagem{ posicao = (x,y), aplicaDano = (armado, tempoArmado) , pontos = score }) ((Martelo (xs,ys)):t) listaInicial
  |((y - 20) <= (ys + 20) || (y + 20) >= (ys - 20)) && ((x-15) < xs + 20 || (x+15) > xs - 20) = ((jogador { aplicaDano = (True,600) }),listaInicial)
  |otherwise = recolherColecionavel jogador { aplicaDano = (armado,tempoArmado-1) } t listaInicial
+-}
+
+recolherColecionavel :: Personagem -> [(Colecionavel,Posicao)] -> (Personagem,(Colecionavel,Posicao))  
+recolherColecionavel jogador [] = (jogador,(Moeda,(9999,9999)))
+recolherColecionavel jogador@(Personagem { posicao = (x, y), direcao = dir, tamanho = (l,a), aplicaDano = (armado, _) , pontos = pontosP }) ((Moeda,(xs, ys)):t)
+    | isInRange (x,y) (Moeda,(xs, ys)) = ((jogador { pontos = (pontosP+1) }),(Moeda,(xs, ys)))
+    | otherwise =  recolherColecionavel jogador t 
+recolherColecionavel jogador@(Personagem { posicao = (x, y), direcao = dir, tamanho = (l,a), aplicaDano = (armado, _) , pontos = pontosP }) ((Martelo,(xs, ys)):t)    
+    | isInRange (x,y) (Martelo,(xs, ys)) = ((jogador { aplicaDano = (True,600)}),(Martelo,(xs, ys)))
+    | otherwise = recolherColecionavel jogador t 
+    
+tirarColecionavel :: (Colecionavel,Posicao) -> [(Colecionavel,Posicao)] -> [(Colecionavel,Posicao)]
+tirarColecionavel c [] = []
+tirarColecionavel c (cP:t) | c == cP = t
+                           | otherwise = cP : tirarColecionavel c t 
+
+isInRange :: (Double, Double) -> (Colecionavel,Posicao) -> Bool
+isInRange (x, y) (Moeda,(xs, ys)) =
+  (y - 20) <= (ys + 20) && (y + 20) >= (ys - 20) && (x - 15) < xs + 20 && (x + 15) > xs - 20
+isInRange (x, y) (Martelo,(xs, ys)) =
+  (y - 20) <= (ys + 20) && (y + 20) >= (ys - 20) && (x - 15) < xs + 20 && (x + 15) > xs - 20
+
 
 
 desarmar :: Personagem -> Personagem 
