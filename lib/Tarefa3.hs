@@ -148,7 +148,7 @@ recolherColecionavel jogador@(Personagem { posicao = (x, y), direcao = dir, tama
     | isInRange (x,y) (Moeda,(xs, ys)) = ((jogador { pontos = (pontosP+1) }),(Moeda,(xs, ys)))
     | otherwise =  recolherColecionavel jogador t 
 recolherColecionavel jogador@(Personagem { posicao = (x, y), direcao = dir, tamanho = (l,a), aplicaDano = (armado, _) , pontos = pontosP }) ((Martelo,(xs, ys)):t)    
-    | isInRange (x,y) (Martelo,(xs, ys)) = ((jogador { aplicaDano = (True,20000000000)}),(Martelo,(xs, ys)))
+    | isInRange (x,y) (Martelo,(xs, ys)) = ((jogador { aplicaDano = (True,600)}),(Martelo,(xs, ys)))
     | otherwise = recolherColecionavel jogador t 
     
 tirarColecionavel :: (Colecionavel,Posicao) -> [(Colecionavel,Posicao)] -> [(Colecionavel,Posicao)]

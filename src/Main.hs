@@ -14,6 +14,12 @@ import Tarefa3
 import Tarefa4
 import LI12324 
 
+data SementeR = SementeR Int deriving (Show, Eq)
+
+instance RandomGen SementeR where
+    next (SementeR s) = let newS = (s * 1103515245 + 12345) `mod` 2147483648
+                       in (newS, SementeR newS)
+
 type Imagens = [(Imagem,Picture)]
 
 data Imagem
@@ -87,6 +93,7 @@ carregarImagens = do
   marioMCE <- loadBMP "MarioMarteloBitE.bmp" 
   marioMBD <- loadBMP "MarioMarteloBaixoBitD.bmp" 
   marioMBE <- loadBMP "MarioMarteloBaixoBitE.bmp" 
+  martelo <- loadBMP "MarteloBit.bmp"
   return
     [ (MarioD1, marioD1)
     , (MarioE1, marioE1)
@@ -107,7 +114,7 @@ carregarImagens = do
     , (MoedaI, moeda)
     , (Fundo,fundo)
     , (Princesa,princesa)
-    ,(MarteloI,minimacaco)
+    ,(MarteloI,martelo)
     ]
 
 getImagem :: Imagem -> Imagens -> Picture
@@ -127,6 +134,7 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
     --else drawMario imgs world
   , drawPontos imagens jogadorD
   , drawMario imagens jogadorD
+  , Translate (realToFrac $ fst(posicao jogadorD)) (realToFrac $ snd(posicao jogadorD)) $ color red $ rectangleSolid 30 40
     ]
 
 drawPrincesa :: Imagens -> Posicao -> Picture
@@ -227,7 +235,7 @@ drawColecionavel imgs (h:t) = drawColecionavel imgs t
 
 drawColecionavelAux ::  Imagens -> (Colecionavel,Posicao) -> Picture
 drawColecionavelAux imgs (Moeda, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 1 1.1 $ (getImagem MoedaI imgs)
-drawColecionavelAux imgs (Martelo, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 1 1.1 $ (getImagem MarteloI imgs)
+drawColecionavelAux imgs (Martelo, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 0.9 0.9 $ (getImagem MarteloI imgs)
                                        
 
 
@@ -264,24 +272,32 @@ acaoInimigos jogo@(Jogo { inimigos = ini@(Personagem {posicao = (x,y), velocidad
 -- | not $ colideEscada (concat matriz) ini && quer = (Just Parar):acaoInimigos jogo{inimigos = t}
  | otherwise = Nothing:acaoInimigos jogo{inimigos = t}
 
-adicionarInimigos :: [Personagem] -> Bool -> [Personagem] 
-adicionarInimigos lista True = let --x' = (randomRIO (-280, 280))
-                                   --y' = (randomRIO (0, 5))
-                                   --randomPos = andares x' y'
-                               in lista ++ [(Personagem { vida = 1, pontos = 0, aplicaDano = (False, 90), querSaltar = (False) , ressalta = True , tamanho = (30, 40) ,posicao = (250,350), tipo= Fantasma , velocidade = (50,0) , direcao = Este , invincibilidade = 0})]
-adicionarInimigos lista False = lista
+adicionarInimigos :: RandomGen g => g -> [Personagem] -> Bool -> [Personagem]
+adicionarInimigos gen lista True =
+    let (x, gen1) = randomR (-280, 280) gen
+        (y, gen2) = randomR (0, 3) gen1
+        pos' = par x y
+        newInimigo = Personagem { vida = 1, pontos = 0, aplicaDano = (False, 90), querSaltar = False, ressalta = True, tamanho = (30, 40), posicao = ((realToFrac (fst pos')), (realToFrac (snd pos'))), tipo = Fantasma, velocidade = (50, 0), direcao = Este, invincibilidade = 0 }
+    in (lista ++ [newInimigo])
+adicionarInimigos gen lista False = lista
+
+par :: Float -> Float -> (Float, Float)
+par x y = (fromIntegral (floor x) :: Float, fromIntegral (enemiesY (floor y)) :: Float)
+  where
+    enemiesY 0 = -340
+    enemiesY 1 = -180
+    enemiesY 2 = -20
+    enemiesY 3 = 140
+    enemiesY 4 = 300
 
 
-andares x y = let  enemiesY 0 = -340
-                   enemiesY 1 = -180
-                   enemiesY 2 = -20
-                   enemiesY 3 = 140
-                   enemiesY 4 = 300
-              in ( ((floor x))
-                 , enemiesY (floor y))
-  
-  
 
+{-
+gerarAleatorioPos :: Int -> Int
+gerarAleatorioPos posicao = let n' = head(geraAleatorios (floor posicao) 1)
+                            in if (n' > 279) && (n' < -279) 
+                               then gerarAleatorioPos posicao 
+                               else n'-}
 
 
 inimigo2 :: Personagem
@@ -327,7 +343,8 @@ spawnarInimigo time = (mod time 360) == 0
 atualizaPrimata :: Float -> PrimateKong -> IO PrimateKong 
 atualizaPrimata dt primata@(PrimateKong jogoA@(Jogo mapa inimigos colecionaveis jogador) menuA opcaoA timer imgsA) = do 
   let jogoA' = movimenta 1 (realToFrac dt) jogoAux
-      jogoAux = jogoA{inimigos = atualizaInimigos (acaoInimigos jogoA) (adicionarInimigos inimigos (spawnarInimigo timer)) }
+      gen = (SementeR ((round(fst(posicao jogador)))*(round(snd(posicao jogador))))) 
+      jogoAux = jogoA{inimigos = atualizaInimigos (acaoInimigos jogoA) (adicionarInimigos gen inimigos (spawnarInimigo timer)) }
       (Mapa (posI,dirI) posf matriz) = (mapa)
       timer' = timer+1
       p = vida jogador

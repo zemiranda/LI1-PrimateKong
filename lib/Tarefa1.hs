@@ -21,7 +21,7 @@ limiteMapaX dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)})
 
 limiteMapaY :: Float -> Personagem -> Mapa -> Double
 limiteMapaY dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)}) mapa@(Mapa ((xi,yi),d) (xf,yf) matriz@(linha:t)) 
-            | y < -380 = -380
+            | y < -340 = -340
             | y > 380 = 380
             | (colisoesChao mapa jogador) && not (querSaltar jogador)= y
             | not (querSaltar jogador) && (colisoesChao mapa jogador) = y
