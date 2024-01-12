@@ -42,11 +42,15 @@ data Imagem
   | MarioMarteloCimaE 
   | MarioMarteloBaixoD 
   | MarioMarteloBaixoE
+  | MenuMorteI
+  | Menu
   deriving (Show, Eq)
 
-data Menu = EmJogo | MenuInicial
-data Opcoes = Jogar | Sair
+data Menu = EmJogo | MenuInicial | MenuMorte
+    deriving (Show,Eq)
 
+data Opcoes = Jogar | Sair
+    deriving (Show,Eq)
 data PrimateKong = PrimateKong { jogo :: Jogo
                                , menu :: Menu
                                , opcao :: Opcoes
@@ -62,7 +66,7 @@ window = InWindow "Teste1" (largura, altura) (0, 0)
 inimigoTeste = Personagem (50,0) Fantasma (100,0) Este (1,1) True True 2 0 (False, 0.0) False 0
 
 initialState :: (Jogo,Menu,Opcoes,Int)
-initialState = ((Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5), EmJogo, Jogar, 0) 
+initialState = ((Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5), MenuInicial, Jogar, 0) 
 
 
 largura, altura :: Int
@@ -94,6 +98,8 @@ carregarImagens = do
   marioMBD <- loadBMP "MarioMarteloBaixoBitD.bmp" 
   marioMBE <- loadBMP "MarioMarteloBaixoBitE.bmp" 
   martelo <- loadBMP "MarteloBit.bmp"
+  menu <- loadBMP "Menu.bmp" 
+  menuMorte <- loadBMP "TelaMorrerBit.bmp"
   return
     [ (MarioD1, marioD1)
     , (MarioE1, marioE1)
@@ -114,7 +120,9 @@ carregarImagens = do
     , (MoedaI, moeda)
     , (Fundo,fundo)
     , (Princesa,princesa)
-    ,(MarteloI,martelo)
+    , (MarteloI,martelo)
+    , (MenuMorteI,menuMorte)
+    , (Menu,menu)
     ]
 
 getImagem :: Imagem -> Imagens -> Picture
@@ -122,7 +130,11 @@ getImagem key dicionario = fromJust $ lookup key dicionario
 
 
 draw :: PrimateKong -> IO Picture
-draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) EmJogo Jogar timer  imagens)  = 
+draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) MenuMorte opcao timer  imagens)  = 
+  return $ Translate 0 0 $ Scale 1.1 1.1 $ getImagem MenuMorteI imagens
+draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) MenuInicial opcao timer  imagens)  = 
+  return $ Translate 0 0 $ Scale 0.9 0.9 $ getImagem Menu imagens
+draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) EmJogo opcao timer  imagens)  = 
   return $ Pictures
   [ drawMap mapaD colecionaveisD imagens 
    --, Translate (xPos world) (yPos world) $ color red $ rectangleSolid characterWidht characterHeight
@@ -242,27 +254,48 @@ drawColecionavelAux imgs (Martelo, (x,y)) = Translate (realToFrac x) (realToFrac
 
 
 reage :: Event  -> PrimateKong -> IO PrimateKong
-reage (EventKey (SpecialKey KeyRight) Down _ _) primata@(PrimateKong { jogo = jogoA  }) = 
-  return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just AndarDireita) jogoA }
-reage (EventKey (SpecialKey KeyLeft) Down _ _)primata@(PrimateKong { jogo = jogoA  }) = 
-  return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just AndarEsquerda) jogoA }
-reage (EventKey (SpecialKey KeyRight) Up _ _) primata@(PrimateKong { jogo = jogoA  }) = 
-  return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Parar) jogoA }
-reage (EventKey (SpecialKey KeyLeft) Up _ _) primata@(PrimateKong { jogo = jogoA  }) = 
-  return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Parar) jogoA }
-reage (EventKey (SpecialKey KeyUp) Down _ _) primata@(PrimateKong { jogo = jogoA }) = 
-  let (Mapa (posI,dirI) posf matriz) = (mapa jogoA)
-      (Personagem { aplicaDano = (armado,tempo)}) = (jogador jogoA)
-  in if colideEscada (concat matriz) (jogador jogoA) && not armado
-     then return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Subir) jogoA }
-     else return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Saltar) jogoA }
-reage (EventKey (SpecialKey KeyDown) Down _ _) primata@(PrimateKong { jogo = jogoA  })= 
-   let (Personagem { aplicaDano = (armado,tempo)}) = (jogador jogoA)
-   in if armado 
-      then return $ primata { jogo = atualiza (acaoInimigos jogoA) (Nothing) jogoA }
-      else return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Descer) jogoA }
-reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = 
-  atualiza (acaoInimigos jogoA) Nothing jogoA }
+reage (EventKey (SpecialKey KeyRight) Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA  }) 
+  | menuA == EmJogo = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just AndarDireita) jogoA }
+  |otherwise = return  primata
+
+reage (EventKey (SpecialKey KeyLeft) Down _ _)primata@(PrimateKong { jogo = jogoA , menu = menuA })
+  | menuA == EmJogo = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just AndarEsquerda) jogoA }
+  |otherwise = return primata 
+
+reage (EventKey (SpecialKey KeyRight) Up _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA }) 
+  | menuA == EmJogo = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Parar) jogoA }
+  |otherwise = return primata 
+ 
+reage (EventKey (SpecialKey KeyLeft) Up _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA  }) 
+  | menuA == EmJogo = return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Parar) jogoA }
+  |otherwise = return primata   
+
+reage (EventKey (SpecialKey KeyUp) Down _ _) primata@(PrimateKong {jogo = jogoA , menu = menuA }) 
+  | menuA == EmJogo = let (Mapa (posI,dirI) posf matriz) = (mapa jogoA)
+                          (Personagem { aplicaDano = (armado,tempo)}) = (jogador jogoA)
+                      in if colideEscada (concat matriz) (jogador jogoA) && not armado
+                         then return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Subir) jogoA }
+                         else return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Saltar) jogoA }
+  |otherwise = return primata 
+ 
+reage (EventKey (SpecialKey KeyDown) Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA })
+  | menuA == EmJogo =let (Personagem { aplicaDano = (armado,tempo)}) = (jogador jogoA)
+                     in if armado 
+                        then return $ primata { jogo = atualiza (acaoInimigos jogoA) (Nothing) jogoA }
+                        else return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Descer) jogoA }
+  | otherwise = return primata
+
+reage (EventKey (Char '1') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA , imagens = imgsA})
+  | menuA == MenuInicial = return $ (PrimateKong (Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5) EmJogo Jogar 0 imgsA ) 
+  | menuA == MenuMorte = return $ (PrimateKong (Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5) EmJogo Jogar 0 imgsA )  
+  | otherwise = return primata  
+
+reage (EventKey (Char '2') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA , imagens = imgsA})
+  | menuA == MenuMorte = return $ primata { menu = MenuInicial  } 
+  | otherwise = return primata  
+
+
+reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) Nothing jogoA }
 
 acaoInimigos :: Jogo -> [Maybe Acao]
 acaoInimigos (Jogo {inimigos = []}) = []
@@ -342,12 +375,17 @@ spawnarInimigo time = (mod time 360) == 0
 
 atualizaPrimata :: Float -> PrimateKong -> IO PrimateKong 
 atualizaPrimata dt primata@(PrimateKong jogoA@(Jogo mapa inimigos colecionaveis jogador) menuA opcaoA timer imgsA) = do 
-  let jogoA' = movimenta 1 (realToFrac dt) jogoAux
+  let jogoA' = if (menuA == EmJogo) 
+               then movimenta sementeValor (realToFrac dt) jogoAux
+               else jogoA
       gen = (SementeR ((round(fst(posicao jogador)))*(round(snd(posicao jogador))))) 
       jogoAux = jogoA{inimigos = atualizaInimigos (acaoInimigos jogoA) (adicionarInimigos gen inimigos (spawnarInimigo timer)) }
       (Mapa (posI,dirI) posf matriz) = (mapa)
       timer' = timer+1
+      menuA' = if (vida jogador) == 999 
+               then MenuMorte 
+               else menuA
       p = vida jogador
   putStrLn (show p)
-  return (PrimateKong jogoA' menuA opcaoA timer' imgsA )             
+  return (PrimateKong jogoA' menuA' opcaoA timer' imgsA )             
 

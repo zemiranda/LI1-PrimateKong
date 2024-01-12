@@ -25,7 +25,8 @@ movimenta sem dt jogo@(Jogo { mapa = mapaD , inimigos = inimigosD , colecionavei
         inimigosAtingidos = tirarVidaInimigos jogadorArmas inimigosMovimentados
         inimigosMortos = desapareceInimigo inimigosAtingidos 
         jogadorAtingido = inimigoAtinge jogadorArmas inimigosMortos
-    in jogo { jogador = jogadorAtingido, colecionaveis = listaColecionaveisMod, mapa = mapaAtualizado, inimigos = inimigosMortos}
+        jogadorMorto' = jogadorMorto jogadorAtingido
+    in jogo { jogador = jogadorMorto', colecionaveis = listaColecionaveisMod, mapa = mapaAtualizado, inimigos = inimigosMortos}
 
 modificaArma :: Personagem -> Personagem 
 modificaArma jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) , aplicaDano = (True,0)}) 
@@ -34,6 +35,10 @@ modificaArma jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade =
  = jogador { aplicaDano = (True,(tempo -1))}
 modificaArma jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) , aplicaDano = (armado,tempo)}) 
  = jogador
+
+jogadorMorto :: Personagem -> Personagem 
+jogadorMorto jogador@(Personagem { posicao = (x,y) , vida = vidas})| vidas <= 0 = jogador { vida = 999 } 
+                                                                   | otherwise = jogador 
 
 jogadorGravidade ::Personagem -> Mapa -> Personagem 
 jogadorGravidade jogador@(Personagem { posicao = (x,y) , velocidade = (xVel, yVel) , querSaltar = quer ,emEscada = emEsc }) mapa
