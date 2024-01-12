@@ -84,6 +84,7 @@ data Personagem =
     , pontos     :: Int
     , aplicaDano :: (Bool, Double) -- ^ se está armado e por quanto tempo ainda
     , querSaltar :: Bool 
+    , invincibilidade :: Int 
     }
   deriving (Eq, Read, Show)
 
