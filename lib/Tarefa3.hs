@@ -12,15 +12,14 @@ import LI12324
 import Tarefa1
 
 movimenta :: Semente -> Tempo -> Jogo -> Jogo
-movimenta sem dt jogo@(Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) = 
+movimenta semente dt jogo@(Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) = 
     let (Mapa (posI,dirI) posf matriz) = (mapaD)
         gravidadeJogador = jogadorGravidade jogadorD mapaD
-        gravidadeInimigo = inimigoGravidade inimigosD mapaD
         jogadorMovimentado = movimentaJogador dt gravidadeJogador mapaD 
         jogadorColecionaveis = recolherColecionavel jogadorMovimentado colecionaveisD
         listaColecionaveisMod = tirarColecionavel (snd jogadorColecionaveis) colecionaveisD
         mapaAtualizado = (Mapa (posI,dirI) posf (unconcat 15 (mudaAlcapao (concat matriz) jogadorD)))
-        inimigosMovimentados = movimentaInimigos dt sem gravidadeInimigo
+        inimigosMovimentados = movimentaInimigos dt inimigosD
     in jogo { jogador = (fst jogadorColecionaveis), colecionaveis = listaColecionaveisMod, mapa = mapaAtualizado, inimigos = inimigosMovimentados}
 
 
@@ -37,14 +36,13 @@ movimentaJogador dt jogador@(Personagem { posicao = (x, y), direcao = dir, veloc
 
 -- Movimentaçao para os Inimigos
 
-movimentaInimigos :: Tempo -> Semente -> [Personagem] -> [Personagem]
-movimentaInimigos _ _ [] = []
-movimentaInimigos dt sem (ini:t) = (movimentaInimigo dt sem ini):movimentaInimigos dt sem t
+movimentaInimigos :: Tempo -> [Personagem] -> [Personagem]
+movimentaInimigos _ [] = []
+movimentaInimigos dt (ini:t) = (movimentaInimigo dt ini):movimentaInimigos dt t
 
-movimentaInimigo :: Tempo -> Semente -> Personagem -> Personagem
-movimentaInimigo dt sem inimigo@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel), querSaltar = quer }) =
-    inimigo{posicao = (movimentaInimigoX dt inimigo,movimentaInimigoY dt inimigo)
-    , querSaltar = saltarInimigo (sem+(round x)) && not quer}
+movimentaInimigo :: Tempo -> Personagem -> Personagem
+movimentaInimigo dt inimigo@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) }) =
+    inimigo{posicao = (movimentaInimigoX dt inimigo,movimentaInimigoY dt inimigo)}
 
 movimentaInimigoX :: Tempo -> Personagem -> Double
 movimentaInimigoX dt inimigo@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) })
@@ -52,31 +50,8 @@ movimentaInimigoX dt inimigo@(Personagem { posicao = (x, y), direcao = dir, velo
 
 movimentaInimigoY :: Tempo -> Personagem -> Double
 movimentaInimigoY dt inimigo@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) })
- = (y + (realToFrac yVel) * (realToFrac dt))
+ = y --(y + (realToFrac yVel) * (realToFrac dt))
 
-saltarInimigo :: Semente -> Bool
-saltarInimigo sem = (mod (head $ geraAleatorios sem 1) 300) == 0
-
-inimigoGravidade :: [Personagem] -> Mapa -> [Personagem]
-inimigoGravidade [] _ = []
-inimigoGravidade inimigos@(ini@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel), emEscada = emEsc, querSaltar = quer }):t) mapa@(Mapa a b matriz)
- | colideEscada (concat matriz) ini =( ini {emEscada = True}):inimigoGravidade t mapa
- | otherwise = ini{emEscada=False}:inimigoGravidade t mapa
-
-
-{-
-subirInimigo :: [Bool] -> [Personagem] -> [Personagem]
-subirInimigo _ [] = []
-subirInimigo [] [] = []
-subirInimigo (True:t) (ini@(Personagem{direcao = dir}):t2) = ini{direcao = Norte}:subirInimigo t t2
-subirInimigo (_:t) (h:t2) = h:subirInimigo t t2
-
---escadasInimigo (geraAleatorio sem n)
-escadasInimigo :: [Int] -> [Bool]
-escadasInimigo [] = []
-escadasInimigo (h:t) | odd h = True:escadasInimigo t
-                     | otherwise = False:escadasInimigo t
--}
 -- -------------------------
 
 modificarVidaI :: Personagem -> [Personagem] -> [Personagem]
@@ -181,13 +156,6 @@ unconcat _ [] = []
 unconcat n xs = take n xs : unconcat n (drop n xs)
 
 
-
-colideEscada :: [Bloco] -> Personagem -> Bool 
-colideEscada [] jogador = False 
-colideEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscada = emEsc })
-    |((x + 5) >= (xs - 20) && (x - 5) <= (xs + 20)) && ((y + 20) >= (ys - 20) && (y - 20) <= (ys + 20)) = True
-    | otherwise = colideEscada t jogador 
-colideEscada (bloco:t) jogador = colideEscada t jogador 
 
 --git add todos os ficheiros 
 --git commit -m "texto"

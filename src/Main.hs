@@ -17,10 +17,8 @@ import LI12324
 type Imagens = [(Imagem,Picture)]
 
 data Imagem
-  = MarioD1
-  | MarioE1   
-  | MarioD2
-  | MarioE2
+  =  MarioD
+  | MarioE
   | MarioC
   | Bloco
   | EscadaI
@@ -46,7 +44,7 @@ data PrimateKong = PrimateKong { jogo :: Jogo
 window :: Display
 window = InWindow "Teste1" (largura, altura) (0, 0)
 
-inimigoTeste = Personagem (-50,0) Fantasma (100,0) Oeste (1,1) True True 2 0 (False, 0.0) False
+inimigoTeste = Personagem (100,350) Fantasma (0,0) Oeste (1,1) True True 2 0 (False, 0.0) False
 
 initialState :: (Jogo,Menu,Opcoes)
 initialState = ((Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5), EmJogo, Jogar) 
@@ -61,11 +59,9 @@ base = -200
 
 carregarImagens :: IO Imagens
 carregarImagens = do
-  marioE1 <- loadBMP "MarioBitRunE1.bmp"
-  marioD1 <- loadBMP "MarioBitRunD1.bmp"
-  marioE2 <- loadBMP "MarioBitRunE2.bmp"
-  marioD2 <- loadBMP "MarioBitRunD2.bmp"
-  --marioC <- loadBMP "MarioCBit.bmp"
+  marioE <- loadBMP "MarioBitRunE2.bmp"
+  marioD <- loadBMP "MarioBitRunD2.bmp"
+  marioC <- loadBMP "MarioCBit.bmp"
   escada <- loadBMP "escadaBit2.bmp"
   bloco <- loadBMP "blocoBit.bmp"
   moeda <- loadBMP "moedaBit.bmp"
@@ -77,11 +73,9 @@ carregarImagens = do
   minimacaco <- loadBMP "MiniMacacoBit.bmp"
   princesa <- loadBMP "PrincesaBit.bmp"
   return
-    [ (MarioD1, marioD1)
-    , (MarioE1, marioE1)
-    , (MarioD2, marioD2)
-    , (MarioE2, marioE2)
-    --, (MarioC, marioC)
+    [ (MarioD, marioD)
+    , (MarioE, marioE)
+    , (MarioC, marioC)
     , (EscadaI, escada)
     , (Bloco, bloco)
     , (MoedaI, moeda)
@@ -105,12 +99,11 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
    --, Translate (xPos world) (yPos world) $ color red $ rectangleSolid characterWidht characterHeight
   --, desenhaEscada imgs (stairsCoords mapa [(0,0)]) PARA QUE ISTO ? TA A DESENHAR OUTRA VEZ ACHO EU
   --, drawEnemies imgs (enemiesList enemies)
+  , drawMario imagens jogadorD
   ,drawPrincesa imagens (-250,310)
   , drawInimigos imagens inimigosD
     --then Translate (-150) 0 $ color black $ Scale 0.5 0.5 $ Text "Game Over"
     --else drawMario imgs world
-  , drawPontos imagens jogadorD
-  , drawMario imagens jogadorD
     ]
 
 drawPrincesa :: Imagens -> Posicao -> Picture
@@ -119,11 +112,8 @@ drawPrincesa imgs (x,y) =  Translate (realToFrac x) ((realToFrac y) - 2) $ Scale
 
 
 drawMario :: Imagens -> Personagem -> Picture
-drawMario imgs (Personagem { posicao = (x,y), direcao = dir }) 
- | (dir == Este) =  Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ 
- (if  even $ round x then getImagem MarioD2 imgs else getImagem MarioD1 imgs)
- | otherwise = Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ 
- (if even $ round x then getImagem MarioE2 imgs else getImagem MarioE1 imgs)
+drawMario imgs (Personagem { posicao = (x,y), direcao = dir }) | (dir == Este) =  Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem MarioD imgs
+                                                               | otherwise = Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem MarioE imgs
 
 drawInimigos :: Imagens -> [Personagem] -> Picture
 drawInimigos _ [] = blank
@@ -133,8 +123,8 @@ drawInimigos imgs (inimigo@(Personagem {posicao = (x,y)}):t) =
 
 
 drawInimigosAux :: Imagens -> Personagem -> Picture
-drawInimigosAux imgs (Personagem { posicao = (x,y), direcao = dir }) | (dir == Oeste) =  Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostE imgs
-                                                                     | otherwise = Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostD imgs
+drawInimigosAux imgs (Personagem { posicao = (x,y), direcao = dir }) | (dir == Oeste) =  Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostD imgs
+                                                                     | otherwise = Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostE imgs
 
 
 
@@ -154,9 +144,6 @@ drawMap (Mapa (posI, dir) posF matriz) listaCol imgs = Pictures [
   -}
   ]
 
-drawPontos :: Imagens -> Personagem -> Picture
-drawPontos imgs (Personagem{pontos = p}) =
-  Translate 225 350 $ color white $ Scale 0.4 0.4 $ Text $ show p
 
 drawBlocks ::  Imagens -> [Bloco] -> Picture
 drawBlocks _ [] = blank  
@@ -231,10 +218,8 @@ reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo =
 
 acaoInimigos :: Jogo -> [Maybe Acao]
 acaoInimigos (Jogo {inimigos = []}) = []
-acaoInimigos jogo@(Jogo { inimigos = ini@(Personagem {posicao = (x,y), velocidade = (xv,yv), direcao = dir, querSaltar = quer}):t, mapa = mapa@(Mapa a b matriz)})
+acaoInimigos jogo@(Jogo { inimigos = ini@(Personagem {posicao = (x,y), velocidade = (xv,yv), direcao = dir}):t, mapa = mapa})
  | colisoesBordasInimigos ini mapa = (oposta dir):acaoInimigos jogo{inimigos = t}
- | colideEscada (concat matriz) ini && quer = (Just Subir):acaoInimigos jogo{inimigos = t}
--- | not $ colideEscada (concat matriz) ini && quer = (Just Parar):acaoInimigos jogo{inimigos = t}
  | otherwise = Nothing:acaoInimigos jogo{inimigos = t}
 
 oposta :: Direcao -> Maybe Acao
