@@ -73,7 +73,7 @@ colisoesChaoAux _ (Personagem {posicao = (x, _)}) = False
 
 colisoesPersonagens :: Personagem -> Personagem -> Bool
 colisoesPersonagens (Personagem {posicao =(x,y), tamanho=(l,a)}) (Personagem {posicao =(x2,y2), tamanho=(l2,a2)})
-                    | ((x+l) > (x2 - l2) && (x-l) < (x2 + l2)) && y - a < y2 + a2 && y + a > y2 - a2 = True
+                    | ((x+l/2) > (x2 - l2/2) && (x-l/2) < (x2 + l2/2)) && y - a/2 < y2 + a2/2 && y + a/2 > y2 - a2/2 = True
                     | otherwise = False
 
 colisoesBordasInimigos :: Personagem -> Mapa -> Bool
