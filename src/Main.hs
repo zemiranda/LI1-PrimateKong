@@ -193,13 +193,8 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
 draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) EmJogo opcao timer tema imagens)  = 
   return $ Pictures
   [ drawMap mapaD colecionaveisD tema imagens 
-   --, Translate (xPos world) (yPos world) $ color red $ rectangleSolid characterWidht characterHeight
-  --, desenhaEscada imgs (stairsCoords mapa [(0,0)]) PARA QUE ISTO ? TA A DESENHAR OUTRA VEZ ACHO EU
-  --, drawEnemies imgs (enemiesList enemies)
-  , drawPrincesa imagens (-250,310)
+  , drawPrincesa imagens mapaD
   , drawInimigos tema imagens inimigosD
-    --then Translate (-150) 0 $ color black $ Scale 0.5 0.5 $ Text "Game Over"
-    --else drawMario imgs world
   , drawPontos imagens jogadorD
   , if tema == 0 
     then drawMario imagens jogadorD
@@ -207,8 +202,8 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
   --, Translate (realToFrac $ fst(posicao jogadorD)) (realToFrac $ snd(posicao jogadorD)) $ color red $ rectangleSolid 30 40
     ]
 
-drawPrincesa :: Imagens -> Posicao -> Picture
-drawPrincesa imgs (x,y) =  Translate (realToFrac x) ((realToFrac y) - 2) $ Scale 0.9 0.9 $ getImagem Princesa imgs
+drawPrincesa :: Imagens -> Mapa -> Picture
+drawPrincesa imgs (Mapa _ (x,y) _) =  Translate (realToFrac x) ((realToFrac y) - 2) $ Scale 0.9 0.9 $ getImagem Princesa imgs
                                                                
 
 -- tema default

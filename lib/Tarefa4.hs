@@ -61,9 +61,3 @@ atualizaJogador acao jogador mapa = jogador
 
 
 
-colideTopoEscada :: [Bloco] -> Personagem -> Bool 
-colideTopoEscada [] jogador = False 
-colideTopoEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscada = emEsc }) 
- |(((x) >= (xs - 20) && (x) <= (xs + 20)) && (y >= (ys + 20) && (y <= (ys + 85)))) && not emEsc = True
- | otherwise = colideTopoEscada t jogador 
-colideTopoEscada (h:t) jogador = colideTopoEscada t jogador 

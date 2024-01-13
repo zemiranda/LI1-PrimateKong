@@ -43,9 +43,9 @@ colisoesParedeLinha2 (h:t) personagem
     | otherwise = colisoesParedeLinha2 t personagem
 
 colisoesParedesAux2 :: Bloco -> Personagem -> (Bool,Bool)
-colisoesParedesAux2 (Plataforma (xs, ys)) (Personagem {posicao = (x, y)})
-    | (((x + 15) >= (xs - 20) && (x+15 < xs-17)) && (y < ys + 20 && y > ys - 20)) = (True,False)
-    | (((x - 15) <= (xs + 20) && (x-15 > xs+17) ) && (y < ys + 20 && y > ys -  20)) = (False,True)
+colisoesParedesAux2 (Plataforma (xs, ys)) (Personagem {posicao = (x, y), tamanho = (l,a)})
+    | (((x + l/2) >= (xs - 20) && (x+l/2 < xs-17)) && (y < ys + 20 && y > ys - 20)) = (True,False)
+    | (((x - l/2) <= (xs + 20) && (x-l/2 > xs+17) ) && (y < ys + 20 && y > ys -  20)) = (False,True)
     | otherwise = (False,False)
 colisoesParedesAux2 _ (Personagem {posicao = (x, _)}) = (False,False)
 
@@ -69,6 +69,22 @@ colisoesChaoAux (Alcapao (xs,ys) False _) (Personagem {posicao = (x,y)})
     |((x + 5) >= (xs - 20) && (x - 5) <= (xs + 20)) && ((y-20) <= (ys+20) && (y - 20) >= ys) = True
     | otherwise = False
 colisoesChaoAux _ (Personagem {posicao = (x, _)}) = False
+
+
+colideEscada :: [Bloco] -> Personagem -> Bool 
+colideEscada [] jogador = False 
+colideEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscada = emEsc })
+    |((x + 5) >= (xs - 20) && (x - 5) <= (xs + 20)) && ((y + 20) >= (ys - 20) && (y - 20) <= (ys + 20)) = True
+    | otherwise = colideEscada t jogador 
+colideEscada (bloco:t) jogador = colideEscada t jogador 
+
+colideTopoEscada :: [Bloco] -> Personagem -> Bool 
+colideTopoEscada [] jogador = False 
+colideTopoEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscada = emEsc }) 
+ |(((x) >= (xs - 20) && (x) <= (xs + 20)) && (y >= (ys + 20) && (y <= (ys + 85)))) && not emEsc = True
+ | otherwise = colideTopoEscada t jogador 
+colideTopoEscada (h:t) jogador = colideTopoEscada t jogador 
+
 
 
 colisoesPersonagens :: Personagem -> Personagem -> Bool

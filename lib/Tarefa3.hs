@@ -52,6 +52,12 @@ movimentaJogador dt jogador@(Personagem { posicao = (x, y), direcao = dir, veloc
     jogador { posicao = ((limiteMapaX (realToFrac dt) jogador mapa),(limiteMapaY (realToFrac dt) jogador mapa)) , querSaltar = False }
 
 
+acabaJogo :: Personagem -> Mapa -> Bool
+acabaJogo (Personagem{posicao = (x,y), tamanho= (l,a)}) (Mapa _ (fx, fy) _) 
+ | ((x+l/2) > fx && (x-l/2) < fx) || ((x+l/2) < fx && (x-l/2) > fx) && (fy < x+a/2 && fy > x-a/2)
+ = True
+ | otherwise = False
+
 -- Movimentaçao para os Inimigos
 
 movimentaInimigos :: Tempo -> Semente -> [Personagem] -> [Personagem]
@@ -80,31 +86,6 @@ inimigoGravidade inimigos@(ini@(Personagem { posicao = (x, y), direcao = dir, ve
  | colideEscada (concat matriz) ini =( ini {emEscada = True}):inimigoGravidade t mapa
  | colisoesChao mapa  ini = (ini { posicao = (x,y+5), velocidade = (-50,0) , emEscada = False , direcao = Oeste }) : inimigoGravidade t mapa
  | otherwise = ini{emEscada=False}:inimigoGravidade t mapa
-
-
-{-
-subirInimigo :: [Bool] -> [Personagem] -> [Personagem]
-subirInimigo _ [] = []
-subirInimigo [] [] = []
-subirInimigo (True:t) (ini@(Personagem{direcao = dir}):t2) = ini{direcao = Norte}:subirInimigo t t2
-subirInimigo (_:t) (h:t2) = h:subirInimigo t t2
-
---escadasInimigo (geraAleatorio sem n)
-escadasInimigo :: [Int] -> [Bool]
-escadasInimigo [] = []
-escadasInimigo (h:t) | odd h = True:escadasInimigo t
-                     | otherwise = False:escadasInimigo t
--}
--- -------------------------
-{-
-modificarVidaI :: Personagem -> [Personagem] -> [Personagem]
-modificarVidaI _ [] = []
-modificarVidaI jogador@(Personagem { posicao = (x, y), direcao = dir, tamanho = (l,a), tipo = Jogador, aplicaDano = (armado, _) }) inimigos@(inimigo@(Personagem { posicao = (xi, yi), vida = vidaI, tipo = Fantasma, tamanho = tamanhoI }):t)
-    | armado && colideI (x, y) (l,a) dir (xi, yi) tamanhoI =
-        inimigo { vida = vidaI - 1 } : modificarVidaI jogador t
-    | otherwise = inimigo : modificarVidaI jogador t
--}
---(Jogo mapa inimigos@(inimigo@(Personagem { posicao = (x, y), direcao = Este, tamanho = (l,a)}):t) colecionaveis jogador@(Personagem { posicao = (xi, yi), direcao = Este, tamanho = (li,ai)}))
 
 tirarVidaInimigos :: Personagem -> [Personagem] -> [Personagem] 
 tirarVidaInimigos jogador [] = []
@@ -184,11 +165,6 @@ currentBlocks world ((Blocks x y):t) = if round (yPos world) == round y+40
                                            else currentBlocks world t
 -}
 
-
--- Funçao que checa se o personagem está no alcapao
---Alcapao (Double, Double) Bool
--- Usada so para verificaçao
-
 tempoAlcapao :: Tempo
 tempoAlcapao = 60
 
@@ -209,15 +185,3 @@ unconcat :: Int -> [Bloco] -> [[Bloco]]
 unconcat _ [] = []
 unconcat n xs = take n xs : unconcat n (drop n xs)
 
-
-
-colideEscada :: [Bloco] -> Personagem -> Bool 
-colideEscada [] jogador = False 
-colideEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscada = emEsc })
-    |((x + 5) >= (xs - 20) && (x - 5) <= (xs + 20)) && ((y + 20) >= (ys - 20) && (y - 20) <= (ys + 20)) = True
-    | otherwise = colideEscada t jogador 
-colideEscada (bloco:t) jogador = colideEscada t jogador 
-
---git add todos os ficheiros 
---git commit -m "texto"
---git push origin 

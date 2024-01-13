@@ -60,7 +60,7 @@ listaBlocos [] = []
 listaBlocos (h:t) = listaBlocosAux h : listaBlocos t
 
 mapa2 :: Mapa
-mapa2 = Mapa ((0, 0), Oeste) (0, 500) (listaBlocos (f mapa1 (-280, 380)))
+mapa2 = Mapa ((0, 0), Oeste) (-250, 300) (listaBlocos (f mapa1 (-280, 380)))
 
 mapa3 :: [[Bloco]]
 mapa3 = (listaBlocos (f mapa1 (-280, 380)))
