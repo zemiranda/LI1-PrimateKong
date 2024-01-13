@@ -31,9 +31,9 @@ atualizaInimigos ((Just Subir):t) (inimigo@(Personagem { posicao = (x,y), veloci
 atualizaInimigos ((Just Parar):t) (inimigo@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }):t2)
  = (inimigo{posicao = (x,y),velocidade = (x,0),  emEscada = False}):atualizaInimigos t t2
 atualizaInimigos ((Just AndarDireita):t) (inimigo@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }):t2) 
- = (inimigo{posicao = (-280,y),velocidade = (50,yVel), direcao = Este}):atualizaInimigos t t2
+ = (inimigo{posicao = (x,y),velocidade = (50,yVel), direcao = Este}):atualizaInimigos t t2
 atualizaInimigos ((Just AndarEsquerda):t) (inimigo@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }):t2) 
- = (inimigo{posicao = (280,y),velocidade = (-50,yVel), direcao = Oeste}):atualizaInimigos t t2
+ = (inimigo{posicao = (x,y),velocidade = (-50,yVel), direcao = Oeste}):atualizaInimigos t t2
 atualizaInimigos (Nothing:t) (inimigo@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }):t2) 
  = inimigo:atualizaInimigos t t2
 atualizaInimigos acao inimigo = inimigo

@@ -66,7 +66,7 @@ colisoesChaoAux (Plataforma (xs, ys)) (Personagem {posicao = (x, y)})
     |(round(y - 22) <= round(ys + 20) && (y-20)>(ys+15) ) && (x < xs + 30 && x > xs - 30) = True
     | otherwise = False
 colisoesChaoAux (Alcapao (xs,ys) False _) (Personagem {posicao = (x,y)})
-    |((x + 5) >= (xs - 20) && (x - 5) <= (xs + 20)) && ((y-20) <= (ys+20) && (y - 20) >= ys) = True
+    |((x + 5) >= (xs - 22) && (x - 5) <= (xs + 22)) && ((y-20) <= (ys+20) && (y - 20) >= ys) = True
     | otherwise = False
 colisoesChaoAux _ (Personagem {posicao = (x, _)}) = False
 
@@ -94,15 +94,9 @@ colisoesPersonagens (Personagem {posicao =(x,y), tamanho=(l,a)}) (Personagem {po
 
 colisoesBordasInimigos :: Personagem -> Mapa -> Bool
 colisoesBordasInimigos inimigo@(Personagem {posicao = (x,y) ,velocidade = (xVel,yVel), direcao = dire, ressalta = ressalta}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t))
- | round x < -281 = True
- | round x > 281 = True
+ | not (colisoesChao mapa inimigo) = True
+ | round x < -275 = True
+ | round x > 275 = True
  | (colisoesParede mapa inimigo) == (True,False) = True
  | (colisoesParede mapa inimigo) == (False,True) = True
  | otherwise = False
-{-
-Esta função parece nao funcionar bem.
-Apesar dela mandar o sinal de True, devido á velocidade do inimigo
-ele acaba por passar por pouco para fora do mapa
-onde ele fica encravado.
-Assim que se dao mais inputs ao sistema o inimigo funciona melhor 
--}

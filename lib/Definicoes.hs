@@ -9,6 +9,8 @@ sementeValor = 436367344
 larguraBloco :: Double
 larguraBloco = 40
 
+inimigosLimite :: Int
+inimigosLimite = 10
 --------------------------------------------------------MAPA-------------------------------------------------------
 
 mapa1 :: [[Char]]
@@ -20,11 +22,11 @@ mapa1 = [
  ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
- ['B','B','B','B','B','V','B','B','V','V','B','B','B','B','B'],
+ ['B','B','B','B','B','V','B','B','A','B','B','B','B','B','B'],
  ['V','E','V','V','V','V','V','V','V','V','V','V','V','V','V'],
  ['V','E','V','V','V','V','V','V','V','V','V','V','V','V','V'],
  ['V','E','V','V','V','V','V','V','V','V','V','V','V','V','V'],
- ['B','B','A','B','B','B','B','B','V','V','B','B','B','B','B'],
+ ['B','B','A','B','B','B','B','B','A','B','B','B','B','B','B'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
@@ -60,7 +62,7 @@ listaBlocos [] = []
 listaBlocos (h:t) = listaBlocosAux h : listaBlocos t
 
 mapa2 :: Mapa
-mapa2 = Mapa ((0, 0), Oeste) (-250, 300) (listaBlocos (f mapa1 (-280, 380)))
+mapa2 = Mapa ((0, 300), Oeste) (-250, 300) (listaBlocos (f mapa1 (-280, 380)))
 
 mapa3 :: [[Bloco]]
 mapa3 = (listaBlocos (f mapa1 (-280, 380)))
@@ -88,21 +90,6 @@ pCEAux (a:b:t) = pCEAux (b:t)
 
 --------------------------------------------------------Personagens-------------------------------------------------------
 
-jogador5 :: Personagem
-jogador5 = Personagem
-  { velocidade = (0, 0)
-  , tipo       = Jogador
-  , posicao    = (250, -320 )
-  , direcao    = Este
-  , tamanho    = (30, 40)
-  , emEscada   = False
-  , ressalta   = False
-  , vida       = 5
-  , pontos     = 0
-  , aplicaDano = (False, 0)
-  , querSaltar = (False)
-  , invincibilidade = 0 
-  }
 
 
 --63.333336636424065,-260.333333350718
@@ -110,27 +97,27 @@ jogador5 = Personagem
 listaInimigos :: [Personagem]
 listaInimigos =
   [ Personagem
-      { velocidade = (1, 1)
+      { velocidade = (100, 0)
       , tipo       = Fantasma
-      , posicao    = (70, 100)
-      , direcao    = Oeste
+      , posicao    = (70, -340)
+      , direcao    = Este
       , tamanho    = (30, 40)
       , emEscada   = False
-      , ressalta   = False
-      , vida       = 70
+      , ressalta   = True
+      , vida       = 1
       , pontos     = 0
       , aplicaDano = (False, 90)
       , querSaltar = (False)
       }
   , Personagem
-      { velocidade = (1, 1)
+      { velocidade = (-100, 0)
       , tipo       = Fantasma
-      , posicao    = (200, 100)
+      , posicao    = (200, -340)
       , direcao    = Oeste
-      , tamanho    = (30, 40)
+      , tamanho    = (10, 40)
       , emEscada   = False
-      , ressalta   = False
-      , vida       = 200
+      , ressalta   = True
+      , vida       = 1
       , pontos     = 0
       , aplicaDano = (False, 90)
       , querSaltar = (False)

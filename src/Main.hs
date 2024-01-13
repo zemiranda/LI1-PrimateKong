@@ -60,16 +60,17 @@ data Imagem
   | Menu
   | MenuT
   | MenuN
+  | GGI
   deriving (Show, Eq)
 
-data Menu = EmJogo | MenuInicial | MenuMorte |MenuTemas |MenuNivel
+data Menu = EmJogo | MenuInicial | MenuMorte |MenuTemas |MenuNivel | GG
     deriving (Show,Eq)
 
-data Opcoes = Jogar | Sair
+data Niveis = Nivel1 | Nivel2
     deriving (Show,Eq)
 data PrimateKong = PrimateKong { jogo :: Jogo
                                , menu :: Menu
-                               , opcao :: Opcoes
+                               , opcao :: Niveis
                                , timer :: Int
                                , tema :: Int
                                , imagens :: Imagens
@@ -78,13 +79,26 @@ data PrimateKong = PrimateKong { jogo :: Jogo
 
 
 window :: Display
-window = InWindow "Teste1" (largura, altura) (0, 0)
+window = InWindow "Primata Kong" (largura, altura) (0, 0)
 
-inimigoTeste = Personagem (50,0) Fantasma (100,0) Este (1,1) True True 2 0 (False, 0.0) False 0
+initialState :: (Jogo,Menu,Niveis,Int,Int)
+initialState = ((Jogo mapa2 listaInimigos listaColecionaveis 
+                 (Personagem
+                   { velocidade = (0, 0)
+                   , tipo       = Jogador
+                   , posicao    = fst $ posInicial mapa2
+                   , direcao    = snd $ posInicial mapa2
+                   , tamanho    = (30, 40)
+                   , emEscada   = False
+                   , ressalta   = False
+                   , vida       = 5
+                   , pontos     = 0
+                   , aplicaDano = (False, 0)
+                   , querSaltar = (False)
+                   , invincibilidade = 0 
+                   })), MenuInicial, Nivel1, 0, 0) 
 
-initialState :: (Jogo,Menu,Opcoes,Int,Int)
-initialState = ((Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5), MenuInicial, Jogar, 0, 0) 
-
+posInicial (Mapa inicial fim f) = inicial
 
 largura, altura :: Int
 largura = 600
@@ -137,6 +151,7 @@ carregarImagens = do
   menuMorte <- loadBMP "TelaMorrerBit.bmp"
   menuT <- loadBMP "MenuTemaBit.bmp"
   menuN <- loadBMP "MenuNivelBit.bmp"
+  gg <- loadBMP "MenuVitoriaBit.bmp"
   return
     [ (MarioD1, marioD1)
     , (MarioE1, marioE1)
@@ -175,6 +190,7 @@ carregarImagens = do
     , (Menu,menu)
     , (MenuT , menuT)
     , (MenuN, menuN)
+    , (GGI, gg)
     ]
 
 getImagem :: Imagem -> Imagens -> Picture
@@ -190,6 +206,8 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
   return $ Translate 0 0 $ Scale 1 1 $ getImagem MenuT imagens
 draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) MenuNivel opcao timer tema imagens)  = 
   return $ Translate 0 0 $ Scale 1 1$ getImagem MenuN imagens
+draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) GG opcao timer tema imagens)  = 
+  return $ Translate 0 0 $ Scale 1 1$ getImagem GGI imagens
 draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) EmJogo opcao timer tema imagens)  = 
   return $ Pictures
   [ drawMap mapaD colecionaveisD tema imagens 
@@ -199,7 +217,7 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
   , if tema == 0 
     then drawMario imagens jogadorD
     else drawHollow imagens jogadorD
-  --, Translate (realToFrac $ fst(posicao jogadorD)) (realToFrac $ snd(posicao jogadorD)) $ color red $ rectangleSolid 30 40
+  , Translate (realToFrac $ fst(posicao (head inimigosD))) (realToFrac $ snd(posicao (head inimigosD))) $ color red $ rectangleSolid 30 40
     ]
 
 drawPrincesa :: Imagens -> Mapa -> Picture
@@ -250,20 +268,20 @@ drawInimigosAux tema imgs (Personagem { posicao = (x,y), direcao = dir }) | (dir
 
 drawMap :: Mapa -> [(Colecionavel,Posicao)] -> Int -> Imagens -> Picture
 drawMap (Mapa (posI, dir) posF matriz) listaCol tema imgs = Pictures [
-  if tema == 0 
-  then Translate 0 0 $ Scale 1 1 $ (getImagem Fundo imgs)
-  else Translate 0 0 $ Scale 1 1 $ (getImagem HollowFundo imgs)
-  , drawStairs imgs (concat matriz)
-  , drawBlocks tema imgs (concat matriz)
-  , drawAlcapao imgs (concat matriz)
-  , drawColecionavel imgs listaCol
-  {-
-  , Translate 0 (300) $ color black $ rectangleSolid 10000 1 -- linha
-  , Translate 0 (-340) $ color black $ rectangleSolid 10000 1 -- linha
-  , Translate 0 (-180) $ color black $ rectangleSolid 10000 1 -- linha
-  , Translate 0 (-20) $ color black $ rectangleSolid 10000 1 -- linha
-  , Translate 0 (140) $ color black $ rectangleSolid 10000 1 -- linha
-  -}
+   if tema == 0 
+   then Translate 0 0 $ Scale 1 1 $ (getImagem Fundo imgs)
+   else Translate 0 0 $ Scale 1 1 $ (getImagem HollowFundo imgs)
+   , drawStairs imgs (concat matriz)
+   , drawBlocks tema imgs (concat matriz)
+   , drawAlcapao imgs (concat matriz)
+   , drawColecionavel imgs listaCol
+   {-
+   , Translate 0 (300) $ color black $ rectangleSolid 10000 1 -- linha
+   , Translate 0 (-340) $ color black $ rectangleSolid 10000 1 -- linha
+   , Translate 0 (-180) $ color black $ rectangleSolid 10000 1 -- linha
+   , Translate 0 (-20) $ color black $ rectangleSolid 10000 1 -- linha
+   , Translate 0 (140) $ color black $ rectangleSolid 10000 1 -- linha
+   -}
   ]
 
 drawPontos :: Imagens -> Personagem -> Picture
@@ -360,18 +378,22 @@ reage (EventKey (SpecialKey KeyDown) Down _ _) primata@(PrimateKong { jogo = jog
 
 reage (EventKey (Char '1') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema = temaA, imagens = imgsA})
   | menuA == MenuTemas = return $ primata { menu = MenuInicial , tema = temaA}
-  | menuA == MenuInicial = return $ (PrimateKong (Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5) EmJogo Jogar 0 temaA imgsA ) 
-  | menuA == MenuMorte = return $ (PrimateKong (Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5) EmJogo Jogar 0 temaA imgsA )  
+  | menuA == MenuInicial = return $ (g initialState imgsA){menu = EmJogo, tema = temaA}
+  | menuA == MenuMorte = return $ (g initialState imgsA){menu = EmJogo, tema = temaA}
+  | menuA == GG = return $ (g initialState imgsA) { menu = MenuInicial , tema = temaA} 
   | otherwise = return primata  
+  where getJogo primata = jogo primata
 
-reage (EventKey (Char '2') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema=temaA, imagens = imgsA})
+
+reage (EventKey (Char '2') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema=temaA, imagens = imgsA, opcao = opcaoA})
   | menuA == MenuInicial = return $ primata { menu = MenuNivel } 
   | menuA == MenuMorte = return $ primata { menu = MenuInicial } 
   | menuA == MenuTemas = return $ primata { menu = MenuInicial , tema = 0}
+  | menuA == GG && opcaoA == Nivel1 = return $ (g initialState imgsA){ menu = MenuInicial , tema = temaA} 
   | otherwise = return primata 
 
 reage (EventKey (Char '3') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema=temaA, imagens = imgsA})
-  | menuA == MenuInicial = return $ (PrimateKong (Jogo mapa2 [inimigoTeste] listaColecionaveis jogador5) MenuTemas Jogar 0 (mudarTema temaA) imgsA )
+  | menuA == MenuInicial = return $ primata{ menu = MenuTemas}
   | menuA == MenuTemas = return $ primata { menu = MenuInicial , tema = 1}
   | menuA == MenuNivel = return $ primata { menu = MenuInicial}
   | otherwise = return primata  
@@ -388,11 +410,11 @@ acaoInimigos jogo@(Jogo { inimigos = ini@(Personagem {posicao = (x,y), velocidad
 
 adicionarInimigos :: RandomGen g => g -> [Personagem] -> Bool -> [Personagem]
 adicionarInimigos gen lista True =
-    let (x, gen1) = randomR (-280, 280) gen
+    let (x, gen1) = randomR (-270, 270) gen
         (y, gen2) = randomR (0, 3) gen1
         pos' = par x y
         newInimigo = Personagem { vida = 1, pontos = 0, aplicaDano = (False, 90), querSaltar = False, ressalta = True, tamanho = (30, 40), posicao = ((realToFrac (fst pos')), (realToFrac (snd pos'))), tipo = Fantasma, velocidade = (50, 0), direcao = Este, invincibilidade = 0 }
-    in (lista ++ [newInimigo])
+    in if length lista > inimigosLimite then lista else (lista ++ [newInimigo])
 adicionarInimigos gen lista False = lista
 
 par :: Float -> Float -> (Float, Float)
@@ -414,21 +436,6 @@ gerarAleatorioPos posicao = let n' = head(geraAleatorios (floor posicao) 1)
                                else n'-}
 
 
-inimigo2 :: Personagem
-inimigo2 = Personagem
-  { velocidade = (0, 0)
-  , tipo       = Jogador
-  , posicao    = (0, 350)
-  , direcao    = Este
-  , tamanho    = (30, 40)
-  , emEscada   = False
-  , ressalta   = False
-  , vida       = 5
-  , pontos     = 0
-  , aplicaDano = (True, 90)
-  , querSaltar = (False)
-  }
-
 oposta :: Direcao -> Maybe Acao
 oposta Norte = Just Descer
 oposta Sul = Just Subir
@@ -446,8 +453,8 @@ main = do
     draw -- desenha no ecra
     reage -- inputs
     atualizaPrimata -- updated the world
- where
-   g (jogo,menu,opcoes,time, tema) imgs = (PrimateKong jogo menu opcoes time tema imgs)
+
+g (jogo,menu,opcoes,time, tema) imgs = (PrimateKong jogo menu opcoes time tema imgs)
  --g :: (Jogo,Menu,Opcoes) -> IO Imagens -> PrimateKong   
 
 
@@ -455,7 +462,7 @@ spawnarInimigo :: Int -> Bool
 spawnarInimigo time = (mod time 360) == 0   
 
 atualizaPrimata :: Float -> PrimateKong -> IO PrimateKong 
-atualizaPrimata dt primata@(PrimateKong jogoA@(Jogo mapa inimigos colecionaveis jogador) menuA opcaoA timer temaA imgsA) = do 
+atualizaPrimata dt primata@(PrimateKong jogoA@(Jogo mapa@(Mapa i (fx,fy) m) inimigos colecionaveis jogador) menuA opcaoA timer temaA imgsA) = do 
   let jogoA' = if (menuA == EmJogo) 
                then movimenta sementeValor (realToFrac dt) jogoAux
                else jogoA
@@ -465,6 +472,7 @@ atualizaPrimata dt primata@(PrimateKong jogoA@(Jogo mapa inimigos colecionaveis 
       timer' = timer+1
       menuA' = if (vida jogador) == 999 
                then MenuMorte 
+               else if  (fx,fy) == (2000,2000) then GG 
                else menuA
       p = vida jogador
   putStrLn (show p)

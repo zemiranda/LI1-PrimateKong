@@ -21,12 +21,13 @@ movimenta sem dt jogo@(Jogo { mapa = mapaD , inimigos = inimigosD , colecionavei
         jogadorArmas = modificaArma ( fst jogadorColecionaveis)
         listaColecionaveisMod = tirarColecionavel (snd jogadorColecionaveis) colecionaveisD
         mapaAtualizado = (Mapa (posI,dirI) posf (unconcat 15 (mudaAlcapao (concat matriz) jogadorD)))
-        inimigosMovimentados = movimentaInimigos dt sem gravidadeInimigo
+        inimigosMovimentados = movimentaInimigos dt (sem+ floor (fst (posicao jogadorD) + snd (posicao jogadorD))) gravidadeInimigo
         inimigosAtingidos = tirarVidaInimigos jogadorArmas inimigosMovimentados
         inimigosMortos = desapareceInimigo inimigosAtingidos 
         jogadorAtingido = inimigoAtinge jogadorArmas inimigosMortos
         jogadorMorto' = jogadorMorto jogadorAtingido
-    in jogo { jogador = jogadorMorto', colecionaveis = listaColecionaveisMod, mapa = mapaAtualizado, inimigos = inimigosMortos}
+        mapaFinal = acabaJogo jogadorMorto' mapaAtualizado
+    in jogo { jogador = jogadorMorto', colecionaveis = listaColecionaveisMod, mapa = mapaFinal, inimigos = inimigosMortos}
 
 modificaArma :: Personagem -> Personagem 
 modificaArma jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) , aplicaDano = (True,0)}) 
@@ -52,11 +53,11 @@ movimentaJogador dt jogador@(Personagem { posicao = (x, y), direcao = dir, veloc
     jogador { posicao = ((limiteMapaX (realToFrac dt) jogador mapa),(limiteMapaY (realToFrac dt) jogador mapa)) , querSaltar = False }
 
 
-acabaJogo :: Personagem -> Mapa -> Bool
-acabaJogo (Personagem{posicao = (x,y), tamanho= (l,a)}) (Mapa _ (fx, fy) _) 
- | ((x+l/2) > fx && (x-l/2) < fx) || ((x+l/2) < fx && (x-l/2) > fx) && (fy < x+a/2 && fy > x-a/2)
- = True
- | otherwise = False
+acabaJogo :: Personagem -> Mapa -> Mapa
+acabaJogo (Personagem{posicao = (x,y), tamanho= (l,a)}) mapa@(Mapa i (fx, fy) m) 
+ | (((x+l/2) > fx && (x-l/2) < fx) || ((x+l/2) < fx && (x-l/2) > fx)) && (fy < y+a/2 && fy > y-a/2)
+ = (Mapa i (2000,2000) m)
+ | otherwise = mapa
 
 -- Movimentaçao para os Inimigos
 
@@ -78,13 +79,13 @@ movimentaInimigoY dt inimigo@(Personagem { posicao = (x, y), direcao = dir, velo
  = (y + (realToFrac yVel) * (realToFrac dt))
 
 saltarInimigo :: Semente -> Bool
-saltarInimigo sem = (mod (head $ geraAleatorios sem 1) 3) == 0
+saltarInimigo sem =mod ((div (head $ geraAleatorios sem 1) 10)) 60 == 0
 
 inimigoGravidade :: [Personagem] -> Mapa -> [Personagem]
 inimigoGravidade [] _ = []
 inimigoGravidade inimigos@(ini@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel), emEscada = emEsc, querSaltar = quer }):t) mapa@(Mapa a b matriz)
  | colideEscada (concat matriz) ini =( ini {emEscada = True}):inimigoGravidade t mapa
- | colisoesChao mapa  ini = (ini { posicao = (x,y+5), velocidade = (-50,0) , emEscada = False , direcao = Oeste }) : inimigoGravidade t mapa
+ | colisoesChao mapa  ini && yVel /= 0 = (ini { posicao = (x,y+5), velocidade = (-50,0) , emEscada = False , direcao = Oeste }) : inimigoGravidade t mapa
  | otherwise = ini{emEscada=False}:inimigoGravidade t mapa
 
 tirarVidaInimigos :: Personagem -> [Personagem] -> [Personagem] 
