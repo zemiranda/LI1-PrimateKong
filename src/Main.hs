@@ -41,12 +41,20 @@ data Imagem
   | HollowFundo
   | HollowFantasmaR
   | HollowFantasmaL
+  | HollowPrincesa 
+  | HollowMacacoR
+  | HollowMacacoL
+  | HollowAlcapaoA
+  | HollowAlcapaoF
+  | HollowMoeda 
+  | HollowMartelo 
 -- --------
   | Bloco
   | EscadaI
   | MoedaI
   | GhostD
   | GhostE
+  | MacacoMalvadoI
   | Alcapa
   | AlcapaAberto
   | Fundo
@@ -81,13 +89,13 @@ data PrimateKong = PrimateKong { jogo :: Jogo
 window :: Display
 window = InWindow "Primata Kong" (largura, altura) (0, 0)
 
-initialState :: (Jogo,Menu,Niveis,Int,Int)
-initialState = ((Jogo mapa2 listaInimigos listaColecionaveis 
+initialState1 :: (Jogo,Menu,Niveis,Int,Int)
+initialState1 = ((Jogo mapa1Aux listaInimigos listaColecionaveisMapa1 
                  (Personagem
                    { velocidade = (0, 0)
                    , tipo       = Jogador
-                   , posicao    = fst $ posInicial mapa2
-                   , direcao    = snd $ posInicial mapa2
+                   , posicao    = fst $ posInicial mapa1Aux
+                   , direcao    = snd $ posInicial mapa1Aux
                    , tamanho    = (30, 40)
                    , emEscada   = False
                    , ressalta   = False
@@ -97,6 +105,24 @@ initialState = ((Jogo mapa2 listaInimigos listaColecionaveis
                    , querSaltar = (False)
                    , invincibilidade = 0 
                    })), MenuInicial, Nivel1, 0, 0) 
+
+initialState2 :: (Jogo,Menu,Niveis,Int,Int)
+initialState2 = ((Jogo mapa2Aux listaInimigos listaColecionaveisMapa2 
+                 (Personagem
+                   { velocidade = (0, 0)
+                   , tipo       = Jogador
+                   , posicao    = fst $ posInicial mapa1Aux
+                   , direcao    = snd $ posInicial mapa1Aux
+                   , tamanho    = (30, 40)
+                   , emEscada   = False
+                   , ressalta   = False
+                   , vida       = 5
+                   , pontos     = 0
+                   , aplicaDano = (False, 0)
+                   , querSaltar = (False)
+                   , invincibilidade = 0 
+                   })), MenuInicial, Nivel1, 0, 0) 
+
 
 posInicial (Mapa inicial fim f) = inicial
 
@@ -131,6 +157,13 @@ carregarImagens = do
   hollowFundo <- loadBMP "HollowBG.bmp"
   hollowFantasmaR <- loadBMP "RadianceR.bmp"
   hollowFantasmaL <- loadBMP "RadianceL.bmp"
+  hollowPrincesa <- loadBMP "HollowPrincesa.bmp"
+  hollowMacacoR <- loadBMP "HollowMMR.bmp"
+  hollowMacacoL <- loadBMP "HollowMML.bmp"
+  hollowAlcapaoA <- loadBMP "HollowAlA.bmp"
+  hollowAlcapaoF <- loadBMP "HollowAlF.bmp"
+  hollowMoeda <- loadBMP "HollowMoeda.bmp" 
+  hollowMartelo <- loadBMP "HollowMartelo.bmp" 
   --marioC <- loadBMP "MarioCBit.bmp"
   escada <- loadBMP "escadaBit2.bmp"
   bloco <- loadBMP "blocoBit.bmp"
@@ -141,6 +174,7 @@ carregarImagens = do
   alcapaAberto <- loadBMP "alcapaoAbertoBit.bmp"
   fundo <- loadBMP "FundoBit.bmp"
   minimacaco <- loadBMP "MiniMacacoBit.bmp"
+  --macacoMalvado <- loadBMP ""
   princesa <- loadBMP "PrincesaBit.bmp"
   marioMCD <- loadBMP "MarioMarteloBitD.bmp" 
   marioMCE <- loadBMP "MarioMarteloBitE.bmp" 
@@ -175,11 +209,19 @@ carregarImagens = do
     , (HollowFundo, hollowFundo)
     , (HollowFantasmaR, hollowFantasmaR)
     , (HollowFantasmaL, hollowFantasmaL)
+    , (HollowPrincesa, hollowPrincesa)
+    , (HollowMacacoR, hollowMacacoR)
+    , (HollowMacacoL, hollowMacacoL)
+    , (HollowAlcapaoA, hollowAlcapaoA)
+    , (HollowAlcapaoF, hollowAlcapaoF)
+    , (HollowMoeda, hollowMoeda)
+    , (HollowMartelo, hollowMartelo)
     , (EscadaI, escada)
     , (Bloco, bloco)
     , (MoedaI, moeda)
     , (GhostD, ghostD)
     , (GhostE, ghostE)
+    , (MacacoMalvadoI , minimacaco)
     , (Alcapa, alcapa)
     , (AlcapaAberto, alcapaAberto)
     , (MoedaI, moeda)
@@ -211,17 +253,17 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
 draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) EmJogo opcao timer tema imagens)  = 
   return $ Pictures
   [ drawMap mapaD colecionaveisD tema imagens 
-  , drawPrincesa imagens mapaD
+  , drawPrincesa tema imagens mapaD
   , drawInimigos tema imagens inimigosD
   , drawPontos imagens jogadorD
   , if tema == 0 
     then drawMario imagens jogadorD
     else drawHollow imagens jogadorD
-  , Translate (realToFrac $ fst(posicao (head inimigosD))) (realToFrac $ snd(posicao (head inimigosD))) $ color red $ rectangleSolid 30 40
-    ]
+  ]
 
-drawPrincesa :: Imagens -> Mapa -> Picture
-drawPrincesa imgs (Mapa _ (x,y) _) =  Translate (realToFrac x) ((realToFrac y) - 2) $ Scale 0.9 0.9 $ getImagem Princesa imgs
+drawPrincesa :: Int -> Imagens -> Mapa -> Picture
+drawPrincesa 0 imgs (Mapa _ (x,y) _) =  Translate (realToFrac x) ((realToFrac y) - 2) $ Scale 0.9 0.9 $ getImagem Princesa imgs
+drawPrincesa 1 imgs (Mapa _ (x,y) _) =  Translate (realToFrac x) ((realToFrac y) - 2) $ Scale 0.5 0.5 $ getImagem HollowPrincesa imgs
                                                                
 
 -- tema default
@@ -273,8 +315,8 @@ drawMap (Mapa (posI, dir) posF matriz) listaCol tema imgs = Pictures [
    else Translate 0 0 $ Scale 1 1 $ (getImagem HollowFundo imgs)
    , drawStairs imgs (concat matriz)
    , drawBlocks tema imgs (concat matriz)
-   , drawAlcapao imgs (concat matriz)
-   , drawColecionavel imgs listaCol
+   , drawAlcapao tema imgs (concat matriz)
+   , drawColecionavel tema imgs listaCol
    {-
    , Translate 0 (300) $ color black $ rectangleSolid 10000 1 -- linha
    , Translate 0 (-340) $ color black $ rectangleSolid 10000 1 -- linha
@@ -314,32 +356,37 @@ drawStairsAux imgs (Escada (x,y)) = Translate (realToFrac x) (realToFrac y) $ Sc
 
 
 
-drawAlcapao ::  Imagens -> [Bloco] -> Picture
-drawAlcapao _ [] = blank  
-drawAlcapao imgs ((Alcapao (x,y) existe tempo): rest) =
-  pictures [drawAlcapaoAux imgs (Alcapao (x,y) existe tempo), drawAlcapao imgs rest]
-drawAlcapao imgs (bloco:rest) = drawAlcapao imgs rest  
+drawAlcapao :: Int ->  Imagens -> [Bloco] -> Picture
+drawAlcapao _ _ [] = blank  
+drawAlcapao tema imgs ((Alcapao (x,y) existe tempo): rest) =
+  pictures [drawAlcapaoAux tema imgs (Alcapao (x,y) existe tempo), drawAlcapao tema imgs rest]
+drawAlcapao tema imgs (bloco:rest) = drawAlcapao tema imgs rest  
 
 
-drawAlcapaoAux ::  Imagens -> Bloco -> Picture
-drawAlcapaoAux imgs (Alcapao (x,y) existe tempo)|existe = Translate (realToFrac x) (realToFrac y) $ Scale 1 0.9 $ (getImagem AlcapaAberto imgs)
-                                          |otherwise = Translate (realToFrac x) (realToFrac y+13) $ Scale 1 1 $ (getImagem Alcapa imgs)
+drawAlcapaoAux :: Int ->  Imagens -> Bloco -> Picture
+drawAlcapaoAux 0 imgs (Alcapao (x,y) existe tempo)|existe = Translate (realToFrac x) (realToFrac y) $ Scale 1 0.9 $ (getImagem AlcapaAberto imgs)
+                                                  |otherwise = Translate (realToFrac x) (realToFrac y+13) $ Scale 1 1 $ (getImagem Alcapa imgs)
+drawAlcapaoAux 1 imgs (Alcapao (x,y) existe tempo)|existe = Translate (realToFrac x-20) (realToFrac y-10) $ Scale 0.3 0.3 $ (getImagem HollowAlcapaoA imgs)
+                                                  |otherwise = Translate (realToFrac x) (realToFrac y+13) $ Scale 0.3 0.3 $ (getImagem HollowAlcapaoF imgs)
 
 
 
-drawColecionavel ::  Imagens -> [(Colecionavel,Posicao)] -> Picture
-drawColecionavel _ [] = blank  
-drawColecionavel imgs ((Moeda, (x,y)): rest) =
-  pictures [drawColecionavelAux imgs (Moeda, (x,y)), drawColecionavel imgs rest]
-drawColecionavel imgs ((Martelo, (x,y)): rest) = 
-  pictures [drawColecionavelAux imgs (Martelo, (x,y)), drawColecionavel imgs rest] 
-drawColecionavel imgs (h:t) = drawColecionavel imgs t
+
+drawColecionavel :: Int ->  Imagens -> [(Colecionavel,Posicao)] -> Picture
+drawColecionavel _ _ [] = blank  
+drawColecionavel tema imgs ((Moeda, (x,y)): rest) =
+  pictures [drawColecionavelAux tema imgs (Moeda, (x,y)), drawColecionavel tema imgs rest]
+drawColecionavel tema imgs ((Martelo, (x,y)): rest) = 
+  pictures [drawColecionavelAux tema imgs (Martelo, (x,y)), drawColecionavel tema imgs rest] 
+drawColecionavel tema imgs (h:t) = drawColecionavel tema imgs t
 
 
-drawColecionavelAux ::  Imagens -> (Colecionavel,Posicao) -> Picture
-drawColecionavelAux imgs (Moeda, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 1 1.1 $ (getImagem MoedaI imgs)
-drawColecionavelAux imgs (Martelo, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 0.9 0.9 $ (getImagem MarteloI imgs)
-                                       
+drawColecionavelAux :: Int -> Imagens -> (Colecionavel,Posicao) -> Picture
+drawColecionavelAux 0 imgs (Moeda, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 1 1.1 $ (getImagem MoedaI imgs)
+drawColecionavelAux 0 imgs (Martelo, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 0.9 0.9 $ (getImagem MarteloI imgs)
+drawColecionavelAux 1 imgs (Moeda, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 0.3 0.3 $ (getImagem HollowMoeda imgs)
+drawColecionavelAux 1 imgs (Martelo, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 0.4 0.4 $ (getImagem HollowMartelo imgs)
+                                                                              
 
 
 
@@ -376,20 +423,24 @@ reage (EventKey (SpecialKey KeyDown) Down _ _) primata@(PrimateKong { jogo = jog
                         else return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Descer) jogoA }
   | otherwise = return primata
 
-reage (EventKey (Char '1') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema = temaA, imagens = imgsA})
+reage (EventKey (Char '1') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema = temaA, opcao = opcaoA , imagens = imgsA})
   | menuA == MenuTemas = return $ primata { menu = MenuInicial , tema = temaA}
-  | menuA == MenuInicial = return $ (g initialState imgsA){menu = EmJogo, tema = temaA}
-  | menuA == MenuMorte = return $ (g initialState imgsA){menu = EmJogo, tema = temaA}
-  | menuA == GG = return $ (g initialState imgsA) { menu = MenuInicial , tema = temaA} 
+  | menuA == MenuInicial && opcaoA == Nivel1 = return $ (g initialState1 imgsA){menu = EmJogo, tema = temaA}
+  | menuA == MenuInicial && opcaoA == Nivel2 = return $ (g initialState2 imgsA){menu = EmJogo, tema = temaA}
+  | menuA == MenuMorte =  return $ (g initialState1 imgsA){menu = EmJogo, tema = temaA}
+  | menuA == MenuNivel  = return $ (g initialState2 imgsA){ menu = EmJogo , tema = temaA , opcao = Nivel2}
+  | menuA == GG = return $ (g initialState1 imgsA) { menu = MenuInicial , tema = temaA} 
   | otherwise = return primata  
   where getJogo primata = jogo primata
 
 
 reage (EventKey (Char '2') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema=temaA, imagens = imgsA, opcao = opcaoA})
   | menuA == MenuInicial = return $ primata { menu = MenuNivel } 
-  | menuA == MenuMorte = return $ primata { menu = MenuInicial } 
+  | menuA == MenuMorte =  return $ (g initialState1 imgsA){menu = MenuInicial, tema = temaA}
   | menuA == MenuTemas = return $ primata { menu = MenuInicial , tema = 0}
-  | menuA == GG && opcaoA == Nivel1 = return $ (g initialState imgsA){ menu = MenuInicial , tema = temaA} 
+  | menuA == MenuNivel  = return $ (g initialState2 imgsA){ menu = EmJogo , tema = temaA , opcao = Nivel2}
+  | menuA == GG && opcaoA == Nivel1 = return $ (g initialState2 imgsA){ menu = EmJogo , tema = temaA , opcao = Nivel2}
+  | menuA == GG && opcaoA == Nivel2 = return $ (g initialState2 imgsA){ menu = MenuInicial , tema = temaA , opcao = Nivel1} 
   | otherwise = return primata 
 
 reage (EventKey (Char '3') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema=temaA, imagens = imgsA})
@@ -402,20 +453,27 @@ reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atua
 
 acaoInimigos :: Jogo -> [Maybe Acao]
 acaoInimigos (Jogo {inimigos = []}) = []
-acaoInimigos jogo@(Jogo { inimigos = ini@(Personagem {posicao = (x,y), velocidade = (xv,yv), direcao = dir, querSaltar = quer}):t, mapa = mapa@(Mapa a b matriz)})
- | colisoesBordasInimigos ini mapa = (oposta dir):acaoInimigos jogo{inimigos = t}
- | quer = (Just Subir):acaoInimigos jogo{inimigos = t}
+acaoInimigos jogo@(Jogo { inimigos = ini@(Personagem {posicao = (x,y), velocidade = (xv,yv), direcao = dir, querSaltar = quer , emEscada = emEsc}):t, mapa = mapa@(Mapa a b matriz)})
+ | colisoesBordasInimigos ini mapa && not emEsc && not quer = (oposta dir):acaoInimigos jogo{inimigos = t}
+ | quer && colideTopoEscada (concat matriz) ini  = (Just Descer) : acaoInimigos jogo { inimigos= t} 
+ | quer && not (yv == -50 ) = (Just Subir):acaoInimigos jogo{inimigos = t}
 -- | not $ colideEscada (concat matriz) ini && quer = (Just Parar):acaoInimigos jogo{inimigos = t}
  | otherwise = Nothing:acaoInimigos jogo{inimigos = t}
 
-adicionarInimigos :: RandomGen g => g -> [Personagem] -> Bool -> [Personagem]
-adicionarInimigos gen lista True =
+adicionarInimigos :: RandomGen g => Niveis -> g -> [Personagem] -> Bool -> [Personagem]
+adicionarInimigos Nivel1 gen lista True =
     let (x, gen1) = randomR (-270, 270) gen
         (y, gen2) = randomR (0, 3) gen1
         pos' = par x y
-        newInimigo = Personagem { vida = 1, pontos = 0, aplicaDano = (False, 90), querSaltar = False, ressalta = True, tamanho = (30, 40), posicao = ((realToFrac (fst pos')), (realToFrac (snd pos'))), tipo = Fantasma, velocidade = (50, 0), direcao = Este, invincibilidade = 0 }
-    in if length lista > inimigosLimite then lista else (lista ++ [newInimigo])
-adicionarInimigos gen lista False = lista
+        newInimigo = Personagem { vida = 1, pontos = 0, aplicaDano = (False, 90), querSaltar = False, ressalta = True, tamanho = (30, 40), posicao = ((realToFrac (fst pos')), (realToFrac (snd pos'))), tipo = Fantasma, velocidade = (50, 0), direcao = Este, invincibilidade = 0 , emEscada = False }
+    in if length lista > inimigosLimite1 then lista else (lista ++ [newInimigo])
+adicionarInimigos Nivel2 gen lista True =
+    let (x, gen1) = randomR (-270, 270) gen
+        (y, gen2) = randomR (0, 3) gen1
+        pos' = par x y
+        newInimigo = Personagem { vida = 1, pontos = 0, aplicaDano = (False, 90), querSaltar = False, ressalta = True, tamanho = (30, 40), posicao = ((realToFrac (fst pos')), (realToFrac (snd pos'))), tipo = Fantasma, velocidade = (50, 0), direcao = Este, invincibilidade = 0 , emEscada = False }
+    in if length lista > inimigosLimite2 then lista else (lista ++ [newInimigo])
+adicionarInimigos nivel gen lista False = lista
 
 par :: Float -> Float -> (Float, Float)
 par x y = (fromIntegral (floor x) :: Float, fromIntegral (enemiesY (floor y)) :: Float)
@@ -437,10 +495,10 @@ gerarAleatorioPos posicao = let n' = head(geraAleatorios (floor posicao) 1)
 
 
 oposta :: Direcao -> Maybe Acao
-oposta Norte = Just Descer
-oposta Sul = Just Subir
 oposta Este = Just AndarEsquerda
 oposta Oeste = Just AndarDireita
+oposta Norte = Nothing
+oposta Sul = Nothing
 
 main :: IO ()
 main = do
@@ -449,7 +507,7 @@ main = do
     window -- Janela
     (greyN 0.5) -- Background
     60 -- FrameRate
-    (g (initialState) imgs) -- Estado Inicial
+    (g (initialState1) imgs) -- Estado Inicial
     draw -- desenha no ecra
     reage -- inputs
     atualizaPrimata -- updated the world
@@ -467,14 +525,14 @@ atualizaPrimata dt primata@(PrimateKong jogoA@(Jogo mapa@(Mapa i (fx,fy) m) inim
                then movimenta sementeValor (realToFrac dt) jogoAux
                else jogoA
       gen = (SementeR ((round(fst(posicao jogador)))*(round(snd(posicao jogador))))) 
-      jogoAux = jogoA{inimigos = atualizaInimigos (acaoInimigos jogoA) (adicionarInimigos gen inimigos (spawnarInimigo timer)) }
+      jogoAux = jogoA{inimigos = atualizaInimigos (acaoInimigos jogoA) (adicionarInimigos opcaoA gen inimigos (spawnarInimigo timer)) }
       (Mapa (posI,dirI) posf matriz) = (mapa)
       timer' = timer+1
-      menuA' = if (vida jogador) == 999 
+      menuA' = if (vida jogador) >= 999 && (vida jogador) >= 950
                then MenuMorte 
                else if  (fx,fy) == (2000,2000) then GG 
                else menuA
-      p = vida jogador
+      p = vida jogador 
   putStrLn (show p)
   return (PrimateKong jogoA' menuA' opcaoA timer' temaA imgsA )             
 

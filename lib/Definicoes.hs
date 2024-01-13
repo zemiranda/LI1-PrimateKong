@@ -9,8 +9,12 @@ sementeValor = 436367344
 larguraBloco :: Double
 larguraBloco = 40
 
-inimigosLimite :: Int
-inimigosLimite = 10
+inimigosLimite1 :: Int
+inimigosLimite1 = 5
+
+
+inimigosLimite2 :: Int
+inimigosLimite2 = 7
 --------------------------------------------------------MAPA-------------------------------------------------------
 
 mapa1 :: [[Char]]
@@ -19,25 +23,51 @@ mapa1 = [
  ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
  ['B','B','B','A','B','B','B','B','V','V','B','B','A','B','B'],
- ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
- ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
- ['V','V','V','V','V','V','V','V','V','V','V','E','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['B','B','B','B','B','V','B','B','A','B','B','B','B','B','B'],
- ['V','E','V','V','V','V','V','V','V','V','V','V','V','V','V'],
- ['V','E','V','V','V','V','V','V','V','V','V','V','V','V','V'],
- ['V','E','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
+ ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
+ ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
  ['B','B','A','B','B','B','B','B','A','B','B','B','B','B','B'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['B','B','B','B','B','B','A','B','B','B','B','B','B','B','B'],
  ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
- ['V','V','V','V','E','V','V','V','V','B','V','V','V','V','V'],
- ['V','V','V','V','E','V','B','V','V','B','V','V','V','V','V'],
+ ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','E','V','V','V','V','V','V','V','V','V','V'],
  ['B','B','B','B','B','B','B','B','B','B','B','B','B','B','B']]
 
-listaColecionaveis :: [(Colecionavel,Posicao)]
-listaColecionaveis = [(Moeda,(270,20)),(Moeda,(-30,0)),(Moeda,(-250,-300)),(Martelo,(-200,-150))]
+mapa2 :: [[Char]]
+mapa2 = [
+ ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
+ ['B','B','B','A','B','B','B','A','B','B','B','B','A','B','B'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','V','V','3','V','V','V','V'],
+ ['B','B','B','B','B','A','B','B','A','B','B','B','B','B','B'],
+ ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
+ ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
+ ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
+ ['B','B','A','B','B','B','B','B','A','B','B','B','B','B','B'],
+ ['V','V','V','V','V','V','V','E','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','V','E','V','V','V','V','V','V','V'],
+ ['V','V','V','V','V','V','V','E','V','V','V','V','V','V','V'],
+ ['B','B','B','B','A','B','B','B','B','B','B','B','B','B','B'],
+ ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
+ ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
+ ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
+ ['B','B','B','B','B','B','B','B','B','B','B','B','B','B','B']]
+
+listaColecionaveisMapa1 :: [(Colecionavel,Posicao)]
+listaColecionaveisMapa1 = [(Moeda,(270,20)),(Moeda,(-30,0)),(Moeda,(-250,-300)),(Martelo,(-200,-150))]
+
+listaColecionaveisMapa2 :: [(Colecionavel,Posicao)]
+listaColecionaveisMapa2 = [(Moeda,(270,20)),(Moeda,(-30,0)),(Moeda,(-250,-300)),(Martelo,(-200,-150))]
 
 
 f :: [[Char]] -> (Double,Double) -> [[(Double,Double,Char)]]
@@ -61,11 +91,14 @@ listaBlocos :: [[(Double, Double, Char)]] -> [[Bloco]]
 listaBlocos [] = []
 listaBlocos (h:t) = listaBlocosAux h : listaBlocos t
 
-mapa2 :: Mapa
-mapa2 = Mapa ((0, 300), Oeste) (-250, 300) (listaBlocos (f mapa1 (-280, 380)))
+mapa1Aux :: Mapa
+mapa1Aux = Mapa ((0, 300), Oeste) (-250, 300) (listaBlocos (f mapa1 (-280, 380)))
 
-mapa3 :: [[Bloco]]
-mapa3 = (listaBlocos (f mapa1 (-280, 380)))
+mapa1Aux2 :: [[Bloco]]
+mapa1Aux2 = (listaBlocos (f mapa1 (-280, 380)))
+
+mapa2Aux :: Mapa
+mapa2Aux = Mapa ((0, 300), Oeste) (-250, 300) (listaBlocos (f mapa2 (-280, 380)))
 
 listaPE :: [Bloco]
 listaPE = plataformasComEscadas mapa2T
@@ -97,20 +130,21 @@ pCEAux (a:b:t) = pCEAux (b:t)
 listaInimigos :: [Personagem]
 listaInimigos =
   [ Personagem
-      { velocidade = (100, 0)
+      { velocidade = (50, 0)
       , tipo       = Fantasma
-      , posicao    = (70, -340)
+      , posicao    = (-250, -180)
       , direcao    = Este
       , tamanho    = (30, 40)
       , emEscada   = False
       , ressalta   = True
       , vida       = 1
       , pontos     = 0
-      , aplicaDano = (False, 90)
+      , aplicaDano = (False, 0)
       , querSaltar = (False)
+      , invincibilidade = 0
       }
   , Personagem
-      { velocidade = (-100, 0)
+      { velocidade = (-50, 0)
       , tipo       = Fantasma
       , posicao    = (200, -340)
       , direcao    = Oeste
@@ -119,7 +153,8 @@ listaInimigos =
       , ressalta   = True
       , vida       = 1
       , pontos     = 0
-      , aplicaDano = (False, 90)
+      , aplicaDano = (False, 0)
       , querSaltar = (False)
+      , invincibilidade = 0
       }
   ]

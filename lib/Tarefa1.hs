@@ -62,14 +62,21 @@ colisoesChaoLinha (h:t) personagem
     | otherwise = colisoesChaoLinha t personagem
 
 colisoesChaoAux :: Bloco -> Personagem -> Bool
+colisoesChaoAux (Plataforma (xs, ys)) (Personagem {posicao = (x, y), tipo = Fantasma})
+    |(round(y - 22) <= round(ys + 20) && (y-20)>(ys+15) ) && (x <= xs + 32 && x >= xs - 32) = True
+    | otherwise = False
 colisoesChaoAux (Plataforma (xs, ys)) (Personagem {posicao = (x, y)})
     |(round(y - 22) <= round(ys + 20) && (y-20)>(ys+15) ) && (x < xs + 30 && x > xs - 30) = True
+    | otherwise = False
+colisoesChaoAux (Alcapao (xs,ys) False _) (Personagem {posicao = (x,y), tipo = Fantasma})
+    |((x + 5) >= (xs - 22) && (x - 5) <= (xs + 22)) && ((y-22) <= (ys+20) && (y - 20) >= ys) = True
     | otherwise = False
 colisoesChaoAux (Alcapao (xs,ys) False _) (Personagem {posicao = (x,y)})
     |((x + 5) >= (xs - 22) && (x - 5) <= (xs + 22)) && ((y-20) <= (ys+20) && (y - 20) >= ys) = True
     | otherwise = False
 colisoesChaoAux _ (Personagem {posicao = (x, _)}) = False
 
+--((x + 5) >= (xs - 22) && (x - 5) <= (xs + 22)) && ((y-20) <= (ys+20) && (y - 20) >= ys) = True
 
 colideEscada :: [Bloco] -> Personagem -> Bool 
 colideEscada [] jogador = False 
@@ -80,6 +87,9 @@ colideEscada (bloco:t) jogador = colideEscada t jogador
 
 colideTopoEscada :: [Bloco] -> Personagem -> Bool 
 colideTopoEscada [] jogador = False 
+colideTopoEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscada = emEsc , tipo = Fantasma }) 
+ |(((x) >= (xs - 20) && (x) <= (xs + 20)) && (y >= (ys + 65) && (y <= (ys + 85)))) && not emEsc = True
+ | otherwise = colideTopoEscada t jogador 
 colideTopoEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emEscada = emEsc }) 
  |(((x) >= (xs - 20) && (x) <= (xs + 20)) && (y >= (ys + 20) && (y <= (ys + 85)))) && not emEsc = True
  | otherwise = colideTopoEscada t jogador 
@@ -93,8 +103,8 @@ colisoesPersonagens (Personagem {posicao =(x,y), tamanho=(l,a)}) (Personagem {po
                     | otherwise = False
 
 colisoesBordasInimigos :: Personagem -> Mapa -> Bool
-colisoesBordasInimigos inimigo@(Personagem {posicao = (x,y) ,velocidade = (xVel,yVel), direcao = dire, ressalta = ressalta}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t))
- | not (colisoesChao mapa inimigo) = True
+colisoesBordasInimigos inimigo@(Personagem {posicao = (x,y) ,velocidade = (xVel,yVel), direcao = dire, ressalta = ressalta , emEscada = emEsc}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t))
+ | not (colisoesChao mapa inimigo)  = True
  | round x < -275 = True
  | round x > 275 = True
  | (colisoesParede mapa inimigo) == (True,False) = True

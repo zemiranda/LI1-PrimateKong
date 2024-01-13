@@ -21,7 +21,7 @@ movimenta sem dt jogo@(Jogo { mapa = mapaD , inimigos = inimigosD , colecionavei
         jogadorArmas = modificaArma ( fst jogadorColecionaveis)
         listaColecionaveisMod = tirarColecionavel (snd jogadorColecionaveis) colecionaveisD
         mapaAtualizado = (Mapa (posI,dirI) posf (unconcat 15 (mudaAlcapao (concat matriz) jogadorD)))
-        inimigosMovimentados = movimentaInimigos dt (sem+ floor (fst (posicao jogadorD) + snd (posicao jogadorD))) gravidadeInimigo
+        inimigosMovimentados = movimentaInimigos dt mapaD (sem+ floor (fst (posicao jogadorD) + snd (posicao jogadorD))) gravidadeInimigo
         inimigosAtingidos = tirarVidaInimigos jogadorArmas inimigosMovimentados
         inimigosMortos = desapareceInimigo inimigosAtingidos 
         jogadorAtingido = inimigoAtinge jogadorArmas inimigosMortos
@@ -54,21 +54,21 @@ movimentaJogador dt jogador@(Personagem { posicao = (x, y), direcao = dir, veloc
 
 
 acabaJogo :: Personagem -> Mapa -> Mapa
-acabaJogo (Personagem{posicao = (x,y), tamanho= (l,a)}) mapa@(Mapa i (fx, fy) m) 
- | (((x+l/2) > fx && (x-l/2) < fx) || ((x+l/2) < fx && (x-l/2) > fx)) && (fy < y+a/2 && fy > y-a/2)
+acabaJogo (Personagem{posicao = (x,y), tamanho= (l,a) , pontos = pontosJ }) mapa@(Mapa i (fx, fy) m) 
+ | ((((x+l/2) > fx && (x-l/2) < fx) || ((x+l/2) < fx && (x-l/2) > fx)) && (fy < y+a/2 && fy > y-a/2)) 
  = (Mapa i (2000,2000) m)
  | otherwise = mapa
 
 -- Movimentaçao para os Inimigos
 
-movimentaInimigos :: Tempo -> Semente -> [Personagem] -> [Personagem]
-movimentaInimigos _ _ [] = []
-movimentaInimigos dt sem (ini:t) = (movimentaInimigo dt sem ini):movimentaInimigos dt sem t
+movimentaInimigos :: Tempo -> Mapa -> Semente -> [Personagem] -> [Personagem]
+movimentaInimigos _ _ _ [] = []
+movimentaInimigos dt mapa sem (ini:t) = (movimentaInimigo dt mapa sem ini):movimentaInimigos dt mapa sem t
 
-movimentaInimigo :: Tempo -> Semente -> Personagem -> Personagem
-movimentaInimigo dt sem inimigo@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel), querSaltar = quer , emEscada = emEsc }) =
+movimentaInimigo :: Tempo -> Mapa -> Semente -> Personagem -> Personagem
+movimentaInimigo dt mapa@(Mapa i (fx,fy) m) sem inimigo@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel), querSaltar = quer , emEscada = emEsc }) =
     inimigo{posicao = (movimentaInimigoX dt inimigo,movimentaInimigoY dt inimigo)
-    , querSaltar = saltarInimigo (sem*(abs(round x))) && not quer && emEsc}
+    , querSaltar = saltarInimigo (sem*(abs(round x))) && not quer && colisoesChao mapa inimigo && (emEsc || colideTopoEscada (concat m) inimigo)  }
 
 movimentaInimigoX :: Tempo -> Personagem -> Double
 movimentaInimigoX dt inimigo@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) })
@@ -84,8 +84,9 @@ saltarInimigo sem =mod ((div (head $ geraAleatorios sem 1) 10)) 60 == 0
 inimigoGravidade :: [Personagem] -> Mapa -> [Personagem]
 inimigoGravidade [] _ = []
 inimigoGravidade inimigos@(ini@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel), emEscada = emEsc, querSaltar = quer }):t) mapa@(Mapa a b matriz)
+ -- colideTopoEscada (concat matriz) ini = (ini {emEscada = True }) : inimigoGravidade t mapa 
+ | colisoesChao mapa  ini && yVel /= 0 = (ini { posicao = (x,y), velocidade = (-50,0) , emEscada = False , direcao = Oeste }) : inimigoGravidade t mapa
  | colideEscada (concat matriz) ini =( ini {emEscada = True}):inimigoGravidade t mapa
- | colisoesChao mapa  ini && yVel /= 0 = (ini { posicao = (x,y+5), velocidade = (-50,0) , emEscada = False , direcao = Oeste }) : inimigoGravidade t mapa
  | otherwise = ini{emEscada=False}:inimigoGravidade t mapa
 
 tirarVidaInimigos :: Personagem -> [Personagem] -> [Personagem] 
@@ -114,7 +115,7 @@ inimigoAtinge :: Personagem -> [Personagem] -> Personagem
 inimigoAtinge jogador [] = jogador
 inimigoAtinge jogador@(Personagem{ vida = vidaJ , invincibilidade = 0}) (inimigo:t) | colisoesPersonagens jogador inimigo = jogador { vida = vidaJ -1 , invincibilidade = 1 }
                                                                                     | otherwise = inimigoAtinge jogador t
-inimigoAtinge jogador@(Personagem{ vida = vidaJ , invincibilidade = tempoI}) (inimigo:t) | colisoesPersonagens jogador inimigo = jogador { invincibilidade = (tempoI+1) }
+inimigoAtinge jogador@(Personagem{ vida = vidaJ , invincibilidade = tempoI}) (inimigo:t) | tempoI < 60 = jogador { invincibilidade = (tempoI+1) }
                                                                                          | otherwise = inimigoAtinge (jogador { invincibilidade = 0 }) t
 
 
