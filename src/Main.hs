@@ -397,7 +397,7 @@ drawColecionavel tema imgs ((Moeda, (x,y)): rest) =
   pictures [drawColecionavelAux tema imgs (Moeda, (x,y)), drawColecionavel tema imgs rest]
 drawColecionavel tema imgs ((Martelo, (x,y)): rest) = 
   pictures [drawColecionavelAux tema imgs (Martelo, (x,y)), drawColecionavel tema imgs rest] 
-drawColecionavel tema imgs (h:t) = drawColecionavel tema imgs t
+
 
 
 drawColecionavelAux :: Int -> Imagens -> (Colecionavel,Posicao) -> Picture
@@ -470,18 +470,31 @@ reage (EventKey (Char '3') Down _ _) primata@(PrimateKong { jogo = jogoA , menu 
   | menuA == MenuNivel = return $ primata { menu = MenuInicial}
   | otherwise = return primata  
 
-
+--------------------------------------------------------------------------------------------------------------
 -- Cheat Codes
+
+--incrementar um ponto ao jogador
 reage (EventKey (Char 'p') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema = temaA, opcao = opcaoA , imagens = imgsA})
   = return $ daPonto primata
 
+--incrementar uma vida ao jogador
 reage (EventKey (Char 'v') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema = temaA, opcao = opcaoA , imagens = imgsA})
   = return $ daVida primata
+
+--teleporta o jogador para a princesa com invencibilidade ao Macaco
+reage (EventKey (Char 'g') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema = temaA, opcao = opcaoA , imagens = imgsA})
+  = return $ acabaOJogo primata
+
+--teleporta o jogador para a princesa com invencibilidade ao Macaco
+reage (EventKey (Char 'm') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema = temaA, opcao = opcaoA , imagens = imgsA})
+  = return $ daMartelo primata  
 
 reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) Nothing jogoA }
 
 daPonto primata@(PrimateKong{jogo = jogo'@(Jogo{jogador = j@(Personagem{pontos = pontos'})})}) = primata{jogo = jogo'{jogador = j{pontos = pontos'+1}}}
 daVida primata@(PrimateKong{jogo = jogo'@(Jogo{jogador = j@(Personagem{vida = vida'})})}) = primata{jogo = jogo'{jogador = j{vida = vida'+1}}}
+acabaOJogo primata@(PrimateKong{jogo = jogo'@(Jogo{jogador = j@(Personagem{vida = vida'}), mapa = (Mapa i (fx,fy) matriz)})}) = primata{jogo = jogo'{jogador = j{posicao = (fx,fy), invincibilidade = 10}}}
+daMartelo primata@(PrimateKong{jogo = jogo'@(Jogo{jogador = j@(Personagem{aplicaDano = (armado,tempo)})})}) = primata{jogo = jogo'{jogador = j{aplicaDano = (True,600)}}}
 ------------------------------------------------------------------------------------------------
 --Calcula as acoes dos inimigos 
 
@@ -543,9 +556,7 @@ atualizaPrimata dt primata@(PrimateKong jogoA@(Jogo mapa@(Mapa i (fx,fy) matriz)
       ----------------------------------------------------
       -- atualizar as acoes dos inimigos e adiconar novos inimigos
       atualizaInmigosJogo = jogoA {inimigos = 
-                                 atualizaInimigos 
-                                  (acaoInimigos jogoA) 
-                                  (adicionarInimigos opcaoA gen inimigos (podeNascerInimigo timer)) }
+          atualizaInimigos (acaoInimigos jogoA) (adicionarInimigos opcaoA gen inimigos (podeNascerInimigo timer)) }
       ----------------------------------------------------
       --incrementar timer geral 
       timer' = timer+1

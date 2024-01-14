@@ -15,7 +15,6 @@ valida (Jogo mapa@(Mapa a pos matriz) inimigos colecionaveis jogador) =
   validaPlataforma mapa &&
   larguraAlcapao 40 jogador &&
   validaEscadaLados matriz (plataformasComEscadas matriz) &&
-  --validaEscadaCimaBaixo matriz &&
   null (validaFimEscadas (listaDeEscadas $ concat matriz) (concat matriz)) &&
   validaColecionavel colecionaveis mapa &&
   validaVidaFant inimigos &&
@@ -24,10 +23,9 @@ valida (Jogo mapa@(Mapa a pos matriz) inimigos colecionaveis jogador) =
   validaPosInimigos inimigos jogador
 
 
-
-
-
 -----------------------------------------------------VERIFICAR PLATAFORMA-------------------------------------------------------------------
+--Verifica se o mapa tem plataformas na base que impede o jogador de cair para fora 
+
 validaPlataforma :: Mapa -> Bool
 validaPlataforma (Mapa ((xi, yi), d) (xf, yf) matriz) =
   validaPlataformaAux (last matriz)
@@ -37,17 +35,64 @@ validaPlataforma (Mapa ((xi, yi), d) (xf, yf) matriz) =
     validaPlataformaAux ((Plataforma (x, y)):t) = validaPlataformaAux t
     validaPlataformaAux (h:t) = False
 
------------------------------------------------------LARGURA ALCAPAO----------------------------------------------
-larguraAlcapao :: Double -> Personagem -> Bool
-larguraAlcapao largAlcapao (Personagem {tipo = Jogador, tamanho = (l, a)})
-  | l > largAlcapao = False
-  | otherwise = True
-larguraAlcapao largAlcapao (Personagem {}) = False
+---------------------------VALIDA RESSALTA DO JOGADOR E FANTASMAS-------------------------------------
 
---------------------------------------------------------VERIFICAR MAPA-------------------------------------------
+validaRessalta :: [Personagem] -> Bool 
+validaRessalta [] = True
+validaRessalta ((Personagem { ressalta = True , tipo = Fantasma }):t) = validaRessalta t
+validaRessalta ((Personagem { ressalta = False , tipo = Jogador }):t) = validaRessalta t
+validaRessalta ((Personagem { ressalta = True , tipo = Jogador }):t) = False
+validaRessalta ((Personagem { ressalta = False , tipo = Fantasma }):t) = False
+validaRessalta (Personagem {}:t) = validaVidaFant t
+
+
+--------------------------VALIDA POSICAO INICIAL DOS INIMIGOS COM A POSICAO DO JOGADOR-----------------------
+
+validaPosInimigos :: [Personagem] -> Personagem -> Bool
+validaPosInimigos [] _ = True
+validaPosInimigos inimigos@((Personagem {posicao = (xs,ys)}):t) jogador@(Personagem {posicao = (x,y)}) 
+  --(length $ filter (\Personagem {posicao =(xs,ys)} -> x /= xs && y /= ys) inimigos) == 0
+ | xs == x && ys == y = False
+ | otherwise = validaPosInimigos t jogador
+
+------------------------------------------NUMERO MINIMO DE INIMIGOS--------------------------------------------
+
+validaNumeroInimigos :: [Personagem] -> Bool
+validaNumeroInimigos inimigos = length inimigos >= 2
+
+----------------------------------------INIMIGOS FANTASMA TEM EXATAMENTE 1 VIDA--------------------------------
+
+validaVidaFant :: [Personagem] -> Bool 
+validaVidaFant [] = True
+validaVidaFant ((Personagem { vida= numeroVida , tipo = Fantasma }):t) | numeroVida /= 1 = False
+                                                     | otherwise = validaVidaFant t
+validaVidaFant ((Personagem { vida= numeroVida }):t) = validaVidaFant t
+
+-----------------------------Escadas nao podem comecar/terminar em alcapoes, e pelo menos uma-----------------------
+----------------------------------das suas extremidades tem que ser do tipo Plataforma-------------------------------      
+
+listaDeEscadas :: [Bloco] -> [Bloco]
+listaDeEscadas [] = []
+listaDeEscadas (escada@(Escada a):t) = (Escada a):listaDeEscadas t
+listaDeEscadas (_:t) = listaDeEscadas t
+ 
+validaFimEscadas :: [Bloco] -> [Bloco] -> [Bloco]
+validaFimEscadas [] _ = []
+validaFimEscadas (escada@(Escada (x,y)):t) matriz = ((validaFimEscadasAux (Escada (x,y)) matriz) ++ validaFimEscadas t matriz)
+
+validaFimEscadasAux :: Bloco -> [Bloco] -> [Bloco]
+validaFimEscadasAux _ [] = []
+validaFimEscadasAux escada@(Escada (x,y)) ((Alcapao (xs,ys) _ _):t)
+ | (x == xs && y+40 == ys) || (x == xs && y-40 == ys) = [escada]
+ | otherwise = validaFimEscadasAux escada t
+validaFimEscadasAux escada (_:t) = validaFimEscadasAux escada t
+
+--Extremidade de escadas
+{-
 transposta :: [[a]] -> [[a]]
 transposta ([]:_) = []
 transposta x = map head x : transposta (map tail x)
+-}
 
 plataformasComEscadas :: [[Bloco]] -> [Bloco]
 plataformasComEscadas [] = []
@@ -96,37 +141,15 @@ isPlataforma _ = False
 isAlcapao :: Bloco -> Bool
 isAlcapao (Alcapao _ _ _) = True
 isAlcapao _ = False
-{-
--- ESta funcao esta mal
-validaEscadaCimaBaixo :: [[Bloco]] -> Bool
-validaEscadaCimaBaixo [] = True
-validaEscadaCimaBaixo (colunas:t) |escadaPlataformaAux colunas = validaEscadaCimaBaixo t
-                                  |otherwise = False 
-    where 
-      escadaPlataformaAux :: [Bloco] -> Bool 
-      escadaPlataformaAux [] = True 
-      escadaPlataformaAux [a] = True 
-      escadaPlataformaAux (Vazio:(Escada (x,y)):t) = False
-      escadaPlataformaAux ((Escada (x,y)):Vazio:t) = False
-      escadaPlataformaAux ((Alcapao (xs,ys) _ _):(Escada (x,y)):t) = False
-      escadaPlataformaAux ((Escada (x,y)):(Alcapao (xs,ys) _ _):t) = False
-      escadaPlataformaAux (a:b:t) = escadaPlataformaAux (b:t)
--}
-listaDeEscadas :: [Bloco] -> [Bloco]
-listaDeEscadas [] = []
-listaDeEscadas (escada@(Escada a):t) = (Escada a):listaDeEscadas t
-listaDeEscadas (_:t) = listaDeEscadas t
- 
-validaFimEscadas :: [Bloco] -> [Bloco] -> [Bloco]
-validaFimEscadas [] _ = []
-validaFimEscadas (escada@(Escada (x,y)):t) matriz = ((validaFimEscadasAux (Escada (x,y)) matriz) ++ validaFimEscadas t matriz)
 
-validaFimEscadasAux :: Bloco -> [Bloco] -> [Bloco]
-validaFimEscadasAux _ [] = []
-validaFimEscadasAux escada@(Escada (x,y)) ((Alcapao (xs,ys) _ _):t)
- | (x == xs && y+40 == ys) || (x == xs && y-40 == ys) = [escada]
- | otherwise = validaFimEscadasAux escada t
-validaFimEscadasAux escada (_:t) = validaFimEscadasAux escada t
+
+-----------------------------------------------------LARGURA ALCAPAO----------------------------------------------
+
+larguraAlcapao :: Double -> Personagem -> Bool
+larguraAlcapao largAlcapao (Personagem {tipo = Jogador, tamanho = (l, a)})
+  | l > largAlcapao = False
+  | otherwise = True
+larguraAlcapao largAlcapao (Personagem {}) = False
 
 
 ----------------------------------------------------------VERIFICAR COLECIONAVEIS--------------------------------------------------------------------
@@ -160,29 +183,3 @@ validaColecionavelAux3 (tipo,(x,y)) (xs, ys)
         | x > (xs-20) && x < (xs+20) && y < (ys+20) && y > (ys-20) = False
         |otherwise = True
 
--------------------------------------------------VERIFICAR INIMIGOS-----------------------------------------------------------------
-
-
-validaVidaFant :: [Personagem] -> Bool 
-validaVidaFant [] = True
-validaVidaFant ((Personagem { vida= numeroVida , tipo = Fantasma }):t) | numeroVida /= 1 = False
-                                                     | otherwise = validaVidaFant t
-validaVidaFant ((Personagem { vida= numeroVida }):t) = validaVidaFant t
-
-validaRessalta :: [Personagem] -> Bool 
-validaRessalta [] = True
-validaRessalta ((Personagem { ressalta = True , tipo = Fantasma }):t) = validaRessalta t
-validaRessalta ((Personagem { ressalta = False , tipo = Jogador }):t) = validaRessalta t
-validaRessalta ((Personagem { ressalta = True , tipo = Jogador }):t) = False
-validaRessalta ((Personagem { ressalta = False , tipo = Fantasma }):t) = False
-validaRessalta (Personagem {}:t) = validaVidaFant t
-
-validaNumeroInimigos :: [Personagem] -> Bool
-validaNumeroInimigos inimigos = length inimigos >= 2
-
-validaPosInimigos :: [Personagem] -> Personagem -> Bool
-validaPosInimigos [] _ = True
-validaPosInimigos inimigos@((Personagem {posicao = (xs,ys)}):t) jogador@(Personagem {posicao = (x,y)}) 
-  --(length $ filter (\Personagem {posicao =(xs,ys)} -> x /= xs && y /= ys) inimigos) == 0
- | xs == x && ys == y = False
- | otherwise = validaPosInimigos t jogador

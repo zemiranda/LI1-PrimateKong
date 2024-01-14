@@ -11,10 +11,10 @@ module Tarefa4 where
 import Data.Maybe
 
 import LI12324
-
+import Tarefa1
 import Tarefa3
 
-import Tarefa1
+
 
 
 atualiza :: [Maybe Acao] -> Maybe Acao -> Jogo -> Jogo
@@ -23,6 +23,7 @@ atualiza listaAInimigos acao jogo@(Jogo { mapa = mapaA , inimigos = listaI , col
                                           inimigosAtualiza = atualizaInimigos listaAInimigos listaI
                                       in jogo { inimigos = inimigosAtualiza , jogador = jogadorAtualiza }
 
+--Transforma acoes do inimigos e modifica as variaveis 
 
 atualizaInimigos :: [Maybe Acao] -> [Personagem] -> [Personagem]
 atualizaInimigos [] [] = []
@@ -40,6 +41,7 @@ atualizaInimigos (Nothing:t) (inimigo@(Personagem { posicao = (x,y), velocidade 
  = inimigo:atualizaInimigos t t2
 atualizaInimigos acao inimigo = inimigo
 
+--Transforma acoes do jogador e modifica as variaveis 
 
 atualizaJogador :: Maybe Acao -> Personagem -> Mapa -> Personagem 
 atualizaJogador (Just AndarDireita) jogador@(Personagem { posicao = (x,y), velocidade = (xVel,yVel) , direcao = dir }) mapa
@@ -59,7 +61,7 @@ atualizaJogador (Just Descer) jogador@(Personagem { posicao = (x,y) , velocidade
     | otherwise = jogador 
 atualizaJogador Nothing jogador@(Personagem { posicao = (x,y) , velocidade = (xVel,yVel) }) mapa
     = jogador 
-atualizaJogador acao jogador mapa = jogador  
+ 
 
 
 

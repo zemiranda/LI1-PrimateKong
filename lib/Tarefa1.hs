@@ -10,37 +10,36 @@ module Tarefa1 where
 
 import LI12324
 
-----------------------------------------------------------------------------------------------------------------------------------------
---Calcula as posicoes x e y para o jogador 
-
-limiteMapaX :: Float -> Personagem -> Mapa -> Double
-limiteMapaX dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t)) 
-            | x < -281 = -280
-            | x > 281 = 280
-            | (colisoesParede mapa jogador) == (True,False) = (x-1)
-            | (colisoesParede mapa jogador) == (False,True) = (x+1)
-            |otherwise = (x + (realToFrac xVel) * (realToFrac dt))
-
-
-limiteMapaY :: Float -> Personagem -> Mapa -> Double
-limiteMapaY dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)}) mapa@(Mapa ((xi,yi),d) (xf,yf) matriz@(linha:t)) 
-            | y < -340 = -340
-            | y > 380 = 380
-            | (colisoesChao mapa jogador) && not (querSaltar jogador)= y
-            | not (querSaltar jogador) && (colisoesChao mapa jogador) = y
-            |otherwise = (y + (realToFrac yVel) * (realToFrac dt)) 
-
 --------------------------------------------------------------------------------------------------------
 --Funcoes da Tarefa 1
 
---Verifica se o jogAdor colide com uma parede pela esquerda ou pela direita : Esquerda-(True,False) , Direita (False,True) 
+------------------------------------------------------
+--verifica se as hitboxes de duas personagens colidem entre si  
 
-colisoesParede :: Mapa -> Personagem -> (Bool,Bool)
-colisoesParede (Mapa ((xi,yi),d) (xf,yf) []) _ = (False,False)
-colisoesParede (Mapa ((xi,yi),d) (xf,yf) (linha:t)) personagem
+colisoesPersonagens :: Personagem -> Personagem -> Bool
+colisoesPersonagens (Personagem {posicao =(x,y), tamanho=(l,a)}) (Personagem {posicao =(x2,y2), tamanho=(l2,a2)})
+                    | ((x+l/2) > (x2 - l2/2) && (x-l/2) < (x2 + l2/2)) && y - a/2 < y2 + a2/2 && y + a/2 > y2 - a2/2 = True
+                    | otherwise = False
+
+----------------------------------------------------------
+--Verifica se o jogador colide com uma parede
+
+colisoesParede :: Mapa -> Personagem -> Bool
+colisoesParede mapa@(Mapa ((xi,yi),d) (xf,yf) []) personagem = colisoesChao mapa personagem
+colisoesParede mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t)) personagem
+    | (colisoesParedeLinha2 linha personagem) == (True,False) || colisoesChao mapa personagem  = True
+    | (colisoesParedeLinha2 linha personagem) == (False,True) || colisoesChao mapa personagem = True
+    | otherwise = colisoesParede (Mapa ((xi,yi),d) (xf,yf) t) personagem
+
+-------------------------------------------------------------
+--Verifica se o jogador colide com uma parede pela esquerda ou pela direita : Esquerda-(True,False) , Direita (False,True) 
+
+colisoesParede2 :: Mapa -> Personagem -> (Bool,Bool)
+colisoesParede2 (Mapa ((xi,yi),d) (xf,yf) []) _ = (False,False)
+colisoesParede2 (Mapa ((xi,yi),d) (xf,yf) (linha:t)) personagem
     | (colisoesParedeLinha2 linha personagem) == (True,False) = (True,False)
     | (colisoesParedeLinha2 linha personagem) == (False,True) = (False,True) 
-    | otherwise = colisoesParede (Mapa ((xi,yi),d) (xf,yf) t) personagem
+    | otherwise = colisoesParede2 (Mapa ((xi,yi),d) (xf,yf) t) personagem
 
 colisoesParedeLinha2 :: [Bloco] -> Personagem -> (Bool,Bool)
 colisoesParedeLinha2 [] _ = (False,False)
@@ -57,7 +56,7 @@ colisoesParedesAux2 (Plataforma (xs, ys)) (Personagem {posicao = (x, y), tamanho
 colisoesParedesAux2 _ (Personagem {posicao = (x, _)}) = (False,False)
 
 ------------------------------------------------------------------------------------------------------------
---verifica se a base do jogador colide com as plataformas 
+--verifica se a base do jogador colide com o topo das plataformas 
 
 colisoesChao :: Mapa -> Personagem -> Bool
 colisoesChao (Mapa ((xi,yi),d) (xf,yf) []) _ = False
@@ -86,6 +85,10 @@ colisoesChaoAux (Alcapao (xs,ys) False _) (Personagem {posicao = (x,y)})
     | otherwise = False
 colisoesChaoAux _ (Personagem {posicao = (x, _)}) = False
 
+
+-----------------------------------------------------------------------------------------------------------
+--FUNCOES EXTRA A TAREFA 1
+
 -----------------------------------------------------------------------------------------------------
 -- verifica se a hitbox do jogador esta dentro da escada 
 
@@ -108,13 +111,6 @@ colideTopoEscada ((Escada (xs,ys)):t) jogador@(Personagem{ posicao = (x,y) , emE
  | otherwise = colideTopoEscada t jogador 
 colideTopoEscada (h:t) jogador = colideTopoEscada t jogador 
 
-------------------------------------------------------
---verifica se as hitboxes de duas personagens colidem entre si  
-
-colisoesPersonagens :: Personagem -> Personagem -> Bool
-colisoesPersonagens (Personagem {posicao =(x,y), tamanho=(l,a)}) (Personagem {posicao =(x2,y2), tamanho=(l2,a2)})
-                    | ((x+l/2) > (x2 - l2/2) && (x-l/2) < (x2 + l2/2)) && y - a/2 < y2 + a2/2 && y + a/2 > y2 - a2/2 = True
-                    | otherwise = False
 
 -------------------------------------------------------
 --verifica quando um inimigo deve ressaltar 
@@ -128,8 +124,26 @@ colisoesBordasInimigos inimigo@(Personagem {posicao = (x,y) ,velocidade = (xVel,
  | not (colisoesChao mapa inimigo)  = True
  | round x < -275 = True
  | round x > 275 = True
- | (colisoesParede mapa inimigo) == (True,False) = True
- | (colisoesParede mapa inimigo) == (False,True) = True
+ | (colisoesParede2 mapa inimigo) == (True,False) = True
+ | (colisoesParede2 mapa inimigo) == (False,True) = True
  | otherwise = False
 
---------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+--Calcula as posicoes x e y para o jogador 
+
+limiteMapaX :: Float -> Personagem -> Mapa -> Double
+limiteMapaX dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t)) 
+            | x < -281 = -280
+            | x > 281 = 280
+            | (colisoesParede2 mapa jogador) == (True,False) = (x-1)
+            | (colisoesParede2 mapa jogador) == (False,True) = (x+1)
+            |otherwise = (x + (realToFrac xVel) * (realToFrac dt))
+
+
+limiteMapaY :: Float -> Personagem -> Mapa -> Double
+limiteMapaY dt jogador@(Personagem{ posicao = (x,y) , velocidade = (xVel,yVel)}) mapa@(Mapa ((xi,yi),d) (xf,yf) matriz@(linha:t)) 
+            | y < -340 = -340
+            | y > 380 = 380
+            | (colisoesChao mapa jogador) && not (querSaltar jogador)= y
+            | not (querSaltar jogador) && (colisoesChao mapa jogador) = y
+            |otherwise = (y + (realToFrac yVel) * (realToFrac dt)) 

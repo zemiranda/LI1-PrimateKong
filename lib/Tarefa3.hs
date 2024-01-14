@@ -25,9 +25,50 @@ movimenta sem dt jogo@(Jogo { mapa = mapaD , inimigos = inimigosD , colecionavei
         inimigosAtingidos = tirarVidaInimigos jogadorArmas inimigosMovimentados
         inimigosMortos = desapareceInimigo inimigosAtingidos 
         jogadorAtingido = inimigoAtinge jogadorArmas inimigosMortos
-        jogadorMorto' = jogadorMorto jogadorAtingido
-        mapaFinal = acabaJogo jogadorMorto' mapaAtualizado
-    in jogo { jogador = jogadorMorto', colecionaveis = listaColecionaveisMod, mapa = mapaFinal, inimigos = inimigosMortos}
+        mapaFinal = acabaJogo jogadorAtingido mapaAtualizado
+    in jogo { jogador = jogadorAtingido, colecionaveis = listaColecionaveisMod, mapa = mapaFinal, inimigos = inimigosMortos}
+
+----------------------------------------------------------------------------------
+-- Aplica gravidade e para o jogador na plataforma caso este colida com o topo dela
+
+jogadorGravidade ::Personagem -> Mapa -> Personagem 
+jogadorGravidade jogador@(Personagem { posicao = (x,y) , velocidade = (xVel, yVel) , querSaltar = quer ,emEscada = emEsc }) mapa
+        | emEsc && (colisoesChao mapa (jogador { posicao = (x,y)})) = jogador { emEscada = False , posicao = (x,(y+4))} 
+        | emEsc = jogador { velocidade = (0,yVel)}
+        | not quer && (colisoesChao mapa jogador) = jogador { velocidade = (xVel,0) , emEscada = False } 
+        | otherwise = jogador { velocidade = (xVel,(yVel - (snd gravidade))) }
+
+--aplica as funcoes de calcular o x e o y do jogador
+
+movimentaJogador :: Tempo -> Personagem -> Mapa -> Personagem 
+movimentaJogador dt jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) , aplicaDano = (armado,tempo)}) mapa =
+    jogador { posicao = ((limiteMapaX (realToFrac dt) jogador mapa),(limiteMapaY (realToFrac dt) jogador mapa)) , querSaltar = False }
+
+--recolhe o colecionavel aplica o efeito no jogador e retorna a lista sem esse colecionavel
+
+recolherColecionavel :: Personagem -> [(Colecionavel,Posicao)] -> (Personagem,(Colecionavel,Posicao))  
+recolherColecionavel jogador [] = (jogador,(Moeda,(9999,9999)))
+recolherColecionavel jogador@(Personagem { posicao = (x, y), direcao = dir, tamanho = (l,a), aplicaDano = (armado, _) , pontos = pontosP }) ((Moeda,(xs, ys)):t)
+    | isInRange (x,y) (Moeda,(xs, ys)) = ((jogador { pontos = (pontosP+1) }),(Moeda,(xs, ys)))
+    | otherwise =  recolherColecionavel jogador t 
+recolherColecionavel jogador@(Personagem { posicao = (x, y), direcao = dir, tamanho = (l,a), aplicaDano = (armado, _) , pontos = pontosP }) ((Martelo,(xs, ys)):t)    
+    | isInRange (x,y) (Martelo,(xs, ys)) = ((jogador { aplicaDano = (True,600)}),(Martelo,(xs, ys)))
+    | otherwise = recolherColecionavel jogador t 
+
+--usando o colecionavel apanhado e a lista de colecionaveis retira o da lista 
+tirarColecionavel :: (Colecionavel,Posicao) -> [(Colecionavel,Posicao)] -> [(Colecionavel,Posicao)]
+tirarColecionavel c [] = []
+tirarColecionavel c (cP:t) | c == cP = t
+                           | otherwise = cP : tirarColecionavel c t 
+
+isInRange :: (Double, Double) -> (Colecionavel,Posicao) -> Bool
+isInRange (x, y) (Moeda,(xs, ys)) =
+  (y - 20) <= (ys + 20) && (y + 20) >= (ys - 20) && (x - 15) < xs + 20 && (x + 15) > xs - 20
+isInRange (x, y) (Martelo,(xs, ys)) =
+  (y - 20) <= (ys + 20) && (y + 20) >= (ys - 20) && (x - 15) < xs + 20 && (x + 15) > xs - 20
+
+
+--desarma o jogador se o tempo tiver acabado e descrementa o timer do martelo
 
 modificaArma :: Personagem -> Personagem 
 modificaArma jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) , aplicaDano = (True,0)}) 
@@ -37,21 +78,24 @@ modificaArma jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade =
 modificaArma jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) , aplicaDano = (armado,tempo)}) 
  = jogador
 
-jogadorMorto :: Personagem -> Personagem 
-jogadorMorto jogador@(Personagem { posicao = (x,y) , vida = vidas})| vidas <= 0 = jogador { vida = 0 } 
-                                                                   | otherwise = jogador 
+desarmar :: Personagem -> Personagem 
+desarmar jogador@(Personagem { aplicaDano = (armado, tempoArmado) }) | tempoArmado == 0 = (jogador { aplicaDano = (False,tempoArmado)})
+                                                                     | otherwise = jogador 
 
-jogadorGravidade ::Personagem -> Mapa -> Personagem 
-jogadorGravidade jogador@(Personagem { posicao = (x,y) , velocidade = (xVel, yVel) , querSaltar = quer ,emEscada = emEsc }) mapa
-        | emEsc && (colisoesChao mapa (jogador { posicao = (x,y)})) = jogador { emEscada = False , posicao = (x,(y+4))} 
-        | emEsc = jogador { velocidade = (0,yVel)}
-        | not quer && (colisoesChao mapa jogador) = jogador { velocidade = (xVel,0) , emEscada = False } 
-        | otherwise = jogador { velocidade = (xVel,(yVel - (snd gravidade))) }
+-------------------------------------------------------------------------------------------------
+-- verifica se o jogador foi atingido pelo inimigo 
+--,retiralhe uma vida e aplica um timer de invencibilidade para que nao perca uma vida por frame
 
-movimentaJogador :: Tempo -> Personagem -> Mapa -> Personagem 
-movimentaJogador dt jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel) , aplicaDano = (armado,tempo)}) mapa =
-    jogador { posicao = ((limiteMapaX (realToFrac dt) jogador mapa),(limiteMapaY (realToFrac dt) jogador mapa)) , querSaltar = False }
-
+inimigoAtinge :: Personagem -> [Personagem] -> Personagem
+inimigoAtinge jogador [] = jogador
+inimigoAtinge jogador@(Personagem{ vida = vidaJ , invincibilidade = 0}) (macaco@(Personagem { tipo = MacacoMalvado }):t) | colisoesPersonagens jogador macaco = jogador { vida = 0 }
+                                                                                                                  | otherwise = inimigoAtinge jogador t
+inimigoAtinge jogador@(Personagem{ vida = vidaJ , invincibilidade = 0}) (inimigo:t) | colisoesPersonagens jogador inimigo = jogador { vida = vidaJ -1 , invincibilidade = 1 }
+                                                                                    | otherwise = inimigoAtinge jogador t
+inimigoAtinge jogador@(Personagem{ vida = vidaJ , invincibilidade = tempoI}) (inimigo:t) | tempoI < 60 = jogador { invincibilidade = (tempoI+1) }
+                                                                                         | otherwise = inimigoAtinge (jogador { invincibilidade = 0 }) t
+--------------------------------------------------------------------------
+-- verifica se a posicao do jogador e igual a posicao final do data Mapa
 
 acabaJogo :: Personagem -> Mapa -> Mapa
 acabaJogo (Personagem{posicao = (x,y), tamanho= (l,a) , pontos = pontosJ }) mapa@(Mapa i (fx, fy) m) 
@@ -59,7 +103,19 @@ acabaJogo (Personagem{posicao = (x,y), tamanho= (l,a) , pontos = pontosJ }) mapa
  = (Mapa i (posicaoFinal) m)
  | otherwise = mapa
 
--- Movimentaçao para os Inimigos
+-----------------------------------------------------------------------------
+-- Para a Velocidade y do inimigo na plataforma caso este colida com o topo dela 
+-- e modifica a componente emEscada caso colida com uma escada
+
+inimigoGravidade :: [Personagem] -> Mapa -> [Personagem]
+inimigoGravidade [] _ = []
+inimigoGravidade inimigos@(ini@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel), emEscada = emEsc, querSaltar = quer }):t) mapa@(Mapa a b matriz)
+ -- colideTopoEscada (concat matriz) ini = (ini {emEscada = True }) : inimigoGravidade t mapa 
+ | colisoesChao mapa  ini && yVel /= 0 = (ini { posicao = (x,y), velocidade = (-50,0) , emEscada = False , direcao = Oeste }) : inimigoGravidade t mapa
+ | colideEscada (concat matriz) ini =( ini {emEscada = True}):inimigoGravidade t mapa
+ | otherwise = ini{emEscada=False}:inimigoGravidade t mapa
+
+--aplica as funcoes que calculam a posicao x e y do inimigo e a funcao saltarInimigo que torna aleatorio a decisao do inimigo subir ou descer a escada
 
 movimentaInimigos :: Tempo -> Mapa -> Semente -> [Personagem] -> [Personagem]
 movimentaInimigos _ _ _ [] = []
@@ -83,13 +139,7 @@ movimentaInimigoY dt inimigo@(Personagem { posicao = (x, y), direcao = dir, velo
 saltarInimigo :: Semente -> Bool
 saltarInimigo sem =mod ((div (head $ geraAleatorios sem 1) 10)) 60 == 0
 
-inimigoGravidade :: [Personagem] -> Mapa -> [Personagem]
-inimigoGravidade [] _ = []
-inimigoGravidade inimigos@(ini@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel), emEscada = emEsc, querSaltar = quer }):t) mapa@(Mapa a b matriz)
- -- colideTopoEscada (concat matriz) ini = (ini {emEscada = True }) : inimigoGravidade t mapa 
- | colisoesChao mapa  ini && yVel /= 0 = (ini { posicao = (x,y), velocidade = (-50,0) , emEscada = False , direcao = Oeste }) : inimigoGravidade t mapa
- | colideEscada (concat matriz) ini =( ini {emEscada = True}):inimigoGravidade t mapa
- | otherwise = ini{emEscada=False}:inimigoGravidade t mapa
+--Verifica se o inimigo colide com o hitbox do martelo e retira-lhe uma vida 
 
 tirarVidaInimigos :: Personagem -> [Personagem] -> [Personagem] 
 tirarVidaInimigos jogador [] = []
@@ -106,73 +156,19 @@ colideI jogador@(Personagem { posicao = (x, y), direcao = Oeste, tamanho = (l,a)
      |otherwise = False
 colideI jogador inimigo = False         
 
+-- se o inimigo tiver 0 vidas retira o do mapa 
+
 desapareceInimigo :: [Personagem] -> [Personagem]
 desapareceInimigo [] = []
 desapareceInimigo inimigos@(inimigo@(Personagem { vida = vidaI , posicao = (xi,yi) }):t) | vidaI == 0 
  = inimigo { posicao = (2000,2000) } : desapareceInimigo (tail inimigos)
                                                                                          | otherwise = inimigo:desapareceInimigo (tail inimigos)
-
-
-inimigoAtinge :: Personagem -> [Personagem] -> Personagem
-inimigoAtinge jogador [] = jogador
-inimigoAtinge jogador@(Personagem{ vida = vidaJ , invincibilidade = 0}) (macaco@(Personagem { tipo = MacacoMalvado }):t) | colisoesPersonagens jogador macaco = jogador { vida = 0 }
-                                                                                                                  | otherwise = inimigoAtinge jogador t
-inimigoAtinge jogador@(Personagem{ vida = vidaJ , invincibilidade = 0}) (inimigo:t) | colisoesPersonagens jogador inimigo = jogador { vida = vidaJ -1 , invincibilidade = 1 }
-                                                                                    | otherwise = inimigoAtinge jogador t
-inimigoAtinge jogador@(Personagem{ vida = vidaJ , invincibilidade = tempoI}) (inimigo:t) | tempoI < 60 = jogador { invincibilidade = (tempoI+1) }
-                                                                                         | otherwise = inimigoAtinge (jogador { invincibilidade = 0 }) t
-
-
-{-
-recolherColecionavel :: Personagem -> [Colecionavel] -> [Colecionavel] -> (Personagem,[Colecionavel])
-recolherColecionavel jogador [] listaInicial = (jogador,listaInicial)
-recolherColecionavel jogador@(Personagem{ posicao = (x,y), aplicaDano = (armado, tempoArmado) , pontos = score }) ((Moeda (xs,ys)):t) listaInicial 
- |((y - 20) <= (ys + 20) || (y + 20) >= (ys - 20)) && ((x-15) < xs + 20 || (x+15) > xs - 20) = ((jogador { pontos = score + 1}),t)
- |otherwise = recolherColecionavel jogador t listaInicial
-recolherColecionavel jogador@(Personagem{ posicao = (x,y), aplicaDano = (armado, tempoArmado) , pontos = score }) ((Martelo (xs,ys)):t) listaInicial
- |((y - 20) <= (ys + 20) || (y + 20) >= (ys - 20)) && ((x-15) < xs + 20 || (x+15) > xs - 20) = ((jogador { aplicaDano = (True,600) }),listaInicial)
- |otherwise = recolherColecionavel jogador { aplicaDano = (armado,tempoArmado-1) } t listaInicial
--}
-
-recolherColecionavel :: Personagem -> [(Colecionavel,Posicao)] -> (Personagem,(Colecionavel,Posicao))  
-recolherColecionavel jogador [] = (jogador,(Moeda,(9999,9999)))
-recolherColecionavel jogador@(Personagem { posicao = (x, y), direcao = dir, tamanho = (l,a), aplicaDano = (armado, _) , pontos = pontosP }) ((Moeda,(xs, ys)):t)
-    | isInRange (x,y) (Moeda,(xs, ys)) = ((jogador { pontos = (pontosP+1) }),(Moeda,(xs, ys)))
-    | otherwise =  recolherColecionavel jogador t 
-recolherColecionavel jogador@(Personagem { posicao = (x, y), direcao = dir, tamanho = (l,a), aplicaDano = (armado, _) , pontos = pontosP }) ((Martelo,(xs, ys)):t)    
-    | isInRange (x,y) (Martelo,(xs, ys)) = ((jogador { aplicaDano = (True,600)}),(Martelo,(xs, ys)))
-    | otherwise = recolherColecionavel jogador t 
-    
-tirarColecionavel :: (Colecionavel,Posicao) -> [(Colecionavel,Posicao)] -> [(Colecionavel,Posicao)]
-tirarColecionavel c [] = []
-tirarColecionavel c (cP:t) | c == cP = t
-                           | otherwise = cP : tirarColecionavel c t 
-
-isInRange :: (Double, Double) -> (Colecionavel,Posicao) -> Bool
-isInRange (x, y) (Moeda,(xs, ys)) =
-  (y - 20) <= (ys + 20) && (y + 20) >= (ys - 20) && (x - 15) < xs + 20 && (x + 15) > xs - 20
-isInRange (x, y) (Martelo,(xs, ys)) =
-  (y - 20) <= (ys + 20) && (y + 20) >= (ys - 20) && (x - 15) < xs + 20 && (x + 15) > xs - 20
-
-
-
-desarmar :: Personagem -> Personagem 
-desarmar jogador@(Personagem { aplicaDano = (armado, tempoArmado) }) | tempoArmado == 0 = (jogador { aplicaDano = (False,tempoArmado)})
-                                                                     | otherwise = jogador 
-
-
-{-
-currentBlocks :: Personagem -> [Bloco] -> Float
-currentBlocks personagem@(Personagem { velocidade = (xVel,yVel)} , ) [] = if yVel world /= 0
-                         
-currentBlocks world ((Blocks x y):t) = if round (yPos world) == round y+40 
-                                           && xPos world -12  < x+20 && xPos world + 12 > x-20
-                                           then  y+40
-                                           else currentBlocks world t
--}
+--------------------------------------------------------------------------------------
 
 tempoAlcapao :: Tempo
 tempoAlcapao = 60
+
+--se o jogador colidir no topo do alcapao este passado 1 segundo vai abrir
 
 mudaAlcapao :: [Bloco] -> Personagem -> [Bloco]
 mudaAlcapao [] jogador = []
@@ -185,6 +181,8 @@ mudaAlcapao (h:t) jogador = h:mudaAlcapao t jogador
 
 abreAlcapao :: Bloco -> Bloco
 abreAlcapao (Alcapao pos False tempoAlcapao) = (Alcapao pos True tempoAlcapao)
+
+---------------------------------------------------------------------------
 
 --Funçao para dar unconcat á matriz
 unconcat :: Int -> [Bloco] -> [[Bloco]]
