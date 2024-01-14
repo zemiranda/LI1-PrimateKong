@@ -7,7 +7,7 @@ Copyright   : Fernando Brito Ferreira <a106878@alunos.uminho.pt>
 Módulo para a realização da Tarefa 3 de LI1 em 2023/24.
 -}
 module Tarefa3 where
-
+import Definicoes
 import LI12324
 import Tarefa1
 
@@ -38,7 +38,7 @@ modificaArma jogador@(Personagem { posicao = (x, y), direcao = dir, velocidade =
  = jogador
 
 jogadorMorto :: Personagem -> Personagem 
-jogadorMorto jogador@(Personagem { posicao = (x,y) , vida = vidas})| vidas <= 0 = jogador { vida = 999 } 
+jogadorMorto jogador@(Personagem { posicao = (x,y) , vida = vidas})| vidas <= 0 = jogador { vida = 0 } 
                                                                    | otherwise = jogador 
 
 jogadorGravidade ::Personagem -> Mapa -> Personagem 
@@ -56,7 +56,7 @@ movimentaJogador dt jogador@(Personagem { posicao = (x, y), direcao = dir, veloc
 acabaJogo :: Personagem -> Mapa -> Mapa
 acabaJogo (Personagem{posicao = (x,y), tamanho= (l,a) , pontos = pontosJ }) mapa@(Mapa i (fx, fy) m) 
  | ((((x+l/2) > fx && (x-l/2) < fx) || ((x+l/2) < fx && (x-l/2) > fx)) && (fy < y+a/2 && fy > y-a/2)) 
- = (Mapa i (2000,2000) m)
+ = (Mapa i (posicaoFinal) m)
  | otherwise = mapa
 
 -- Movimentaçao para os Inimigos
@@ -66,6 +66,8 @@ movimentaInimigos _ _ _ [] = []
 movimentaInimigos dt mapa sem (ini:t) = (movimentaInimigo dt mapa sem ini):movimentaInimigos dt mapa sem t
 
 movimentaInimigo :: Tempo -> Mapa -> Semente -> Personagem -> Personagem
+movimentaInimigo dt mapa@(Mapa i (fx,fy) m) sem inimigo@(Personagem { posicao = (x, y), tipo = MacacoMalvado, velocidade = (xVel,yVel), querSaltar = quer , emEscada = emEsc }) =
+    inimigo{posicao = (movimentaInimigoX dt inimigo,movimentaInimigoY dt inimigo)}
 movimentaInimigo dt mapa@(Mapa i (fx,fy) m) sem inimigo@(Personagem { posicao = (x, y), direcao = dir, velocidade = (xVel,yVel), querSaltar = quer , emEscada = emEsc }) =
     inimigo{posicao = (movimentaInimigoX dt inimigo,movimentaInimigoY dt inimigo)
     , querSaltar = saltarInimigo (sem*(abs(round x))) && not quer && colisoesChao mapa inimigo && (emEsc || colideTopoEscada (concat m) inimigo)  }
@@ -96,10 +98,10 @@ tirarVidaInimigos jogador@(Personagem { posicao = (xi, yi), direcao = dir, taman
  | otherwise = inimigo : tirarVidaInimigos jogador t
 
 colideI :: Personagem -> Personagem -> Bool 
-colideI jogador@(Personagem { posicao = (x, y), direcao = Este, tamanho = (l,a)}) inimigo@(Personagem { posicao = (xi, yi), direcao = dirI, tamanho = (li,ai)})
+colideI jogador@(Personagem { posicao = (x, y), direcao = Este, tamanho = (l,a)}) inimigo@(Personagem { posicao = (xi, yi), direcao = dirI, tipo = Fantasma,  tamanho = (li,ai)})
      |( (xi > x+(l/2)) && (xi < (x+(l/2)+l)) ) && ( (yi < y + (a/2)) && (yi > y - (a/2))) = True
      |otherwise = False
-colideI jogador@(Personagem { posicao = (x, y), direcao = Oeste, tamanho = (l,a)}) inimigo@(Personagem { posicao = (xi, yi), direcao = dirI, tamanho = (li,ai)})
+colideI jogador@(Personagem { posicao = (x, y), direcao = Oeste, tamanho = (l,a)}) inimigo@(Personagem { posicao = (xi, yi),tipo = Fantasma, direcao = dirI, tamanho = (li,ai)})
      |( (xi > (x-(l/2)-l)) && (xi < (x+(l/2))) ) && ( (yi < y + (a/2)) && (yi > y - (a/2))) = True
      |otherwise = False
 colideI jogador inimigo = False         
@@ -113,6 +115,8 @@ desapareceInimigo inimigos@(inimigo@(Personagem { vida = vidaI , posicao = (xi,y
 
 inimigoAtinge :: Personagem -> [Personagem] -> Personagem
 inimigoAtinge jogador [] = jogador
+inimigoAtinge jogador@(Personagem{ vida = vidaJ , invincibilidade = 0}) (macaco@(Personagem { tipo = MacacoMalvado }):t) | colisoesPersonagens jogador macaco = jogador { vida = 0 }
+                                                                                                                  | otherwise = inimigoAtinge jogador t
 inimigoAtinge jogador@(Personagem{ vida = vidaJ , invincibilidade = 0}) (inimigo:t) | colisoesPersonagens jogador inimigo = jogador { vida = vidaJ -1 , invincibilidade = 1 }
                                                                                     | otherwise = inimigoAtinge jogador t
 inimigoAtinge jogador@(Personagem{ vida = vidaJ , invincibilidade = tempoI}) (inimigo:t) | tempoI < 60 = jogador { invincibilidade = (tempoI+1) }

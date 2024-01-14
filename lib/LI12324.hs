@@ -101,7 +101,7 @@ data Acao
 
 {- | Vetor velocidade da gravidade.
 
-prop> gravidade == (0, 10)
+prop> gravidade == (0, 8)
 -}
 gravidade :: Velocidade
 gravidade = (0, 8)

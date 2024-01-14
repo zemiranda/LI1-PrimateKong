@@ -161,10 +161,7 @@ validaColecionavelAux3 (tipo,(x,y)) (xs, ys)
         |otherwise = True
 
 -------------------------------------------------VERIFICAR INIMIGOS-----------------------------------------------------------------
-{-
-listaPersonagem :: [Personagem]
-listaPersonagem = [(Personagem { vida= 1 , tipo = Fantasma }),(Personagem { vida= 1 , tipo = Jogador }),(Personagem { vida= 2 , tipo = Fantasma })]
--}
+
 
 validaVidaFant :: [Personagem] -> Bool 
 validaVidaFant [] = True

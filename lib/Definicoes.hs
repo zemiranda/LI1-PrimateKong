@@ -5,13 +5,12 @@ import LI12324
 sementeValor :: Semente
 sementeValor = 436367344
 
-
 larguraBloco :: Double
 larguraBloco = 40
 
+--limite de inimigos para cada Nivel :
 inimigosLimite1 :: Int
 inimigosLimite1 = 5
-
 
 inimigosLimite2 :: Int
 inimigosLimite2 = 7
@@ -63,12 +62,24 @@ mapa2 = [
  ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
  ['B','B','B','B','B','B','B','B','B','B','B','B','B','B','B']]
 
+
+largura, altura :: Int
+largura = 600
+altura = 800
+
+base :: Float
+base = -200
+
+
+-----------------------------------Lista de Colecionaveis para cada nivel---------------------------------------------
+
 listaColecionaveisMapa1 :: [(Colecionavel,Posicao)]
-listaColecionaveisMapa1 = [(Moeda,(270,20)),(Moeda,(-30,0)),(Moeda,(-250,-300)),(Martelo,(-200,-150))]
+listaColecionaveisMapa1 = [(Moeda,(270,20)),(Moeda,(-30,0)),(Moeda,(-250,-300)),(Martelo,(-200,-150)),(Martelo,(200,300))]
 
 listaColecionaveisMapa2 :: [(Colecionavel,Posicao)]
 listaColecionaveisMapa2 = [(Moeda,(270,20)),(Moeda,(-30,0)),(Moeda,(-250,-300)),(Martelo,(-200,-150))]
 
+--------------------funcoes para transformar a matriz de letras em variaveis (Plataforma,Alcapao...)--------------
 
 f :: [[Char]] -> (Double,Double) -> [[(Double,Double,Char)]]
 f [] _ = []
@@ -100,6 +111,8 @@ mapa1Aux2 = (listaBlocos (f mapa1 (-280, 380)))
 mapa2Aux :: Mapa
 mapa2Aux = Mapa ((0, 300), Oeste) (-250, 300) (listaBlocos (f mapa2 (-280, 380)))
 
+----------------------------- funcoes e variaveis acerca do mapa usadas para a funcao valida------------------------- 
+
 listaPE :: [Bloco]
 listaPE = plataformasComEscadas mapa2T
 
@@ -123,13 +136,28 @@ pCEAux (a:b:t) = pCEAux (b:t)
 
 --------------------------------------------------------Personagens-------------------------------------------------------
 
-
+posicaoFinal :: (Double,Double) 
+posicaoFinal = (2000,2000)
 
 --63.333336636424065,-260.333333350718
 
 listaInimigos :: [Personagem]
 listaInimigos =
   [ Personagem
+      { velocidade = (50, 0)
+      , tipo       = MacacoMalvado
+      , posicao    = (-250, 300)
+      , direcao    = Este
+      , tamanho    = (115, 85)
+      , emEscada   = False
+      , ressalta   = True
+      , vida       = 1
+      , pontos     = 0
+      , aplicaDano = (False, 0)
+      , querSaltar = (False)
+      , invincibilidade = 0
+      }
+    ,Personagem
       { velocidade = (50, 0)
       , tipo       = Fantasma
       , posicao    = (-250, -180)

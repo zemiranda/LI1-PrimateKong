@@ -18,58 +18,8 @@ data SementeR = SementeR Int deriving (Show, Eq)
 
 instance RandomGen SementeR where
     next (SementeR s) = let newS = (s * 1103515245 + 12345) `mod` 2147483648
-                       in (newS, SementeR newS)
+                        in (newS, SementeR newS)
 
-type Imagens = [(Imagem,Picture)]
-
-data Imagem
-  = MarioD1
-  | MarioE1   
-  | MarioD2
-  | MarioE2
-  | MarioC
-  -- tema Hollow
-  | HollowL1
-  | HollowR1
-  | HollowL2
-  | HollowR2
-  | HollowMarteloR1
-  | HollowMarteloL1
-  | HollowMarteloR2
-  | HollowMarteloL2
-  | HollowPlat  
-  | HollowFundo
-  | HollowFantasmaR
-  | HollowFantasmaL
-  | HollowPrincesa 
-  | HollowMacacoR
-  | HollowMacacoL
-  | HollowAlcapaoA
-  | HollowAlcapaoF
-  | HollowMoeda 
-  | HollowMartelo 
--- --------
-  | Bloco
-  | EscadaI
-  | MoedaI
-  | GhostD
-  | GhostE
-  | MacacoMalvadoI
-  | Alcapa
-  | AlcapaAberto
-  | Fundo
-  | Princesa
-  | MarteloI
-  | MarioMarteloCimaD 
-  | MarioMarteloCimaE 
-  | MarioMarteloBaixoD 
-  | MarioMarteloBaixoE
-  | MenuMorteI
-  | Menu
-  | MenuT
-  | MenuN
-  | GGI
-  deriving (Show, Eq)
 
 data Menu = EmJogo | MenuInicial | MenuMorte |MenuTemas |MenuNivel | GG
     deriving (Show,Eq)
@@ -88,6 +38,7 @@ data PrimateKong = PrimateKong { jogo :: Jogo
 
 window :: Display
 window = InWindow "Primata Kong" (largura, altura) (0, 0)
+--------------------------------Configuracao inicial para cada nivel -------------------------------------
 
 initialState1 :: (Jogo,Menu,Niveis,Int,Int)
 initialState1 = ((Jogo mapa1Aux listaInimigos listaColecionaveisMapa1 
@@ -126,16 +77,64 @@ initialState2 = ((Jogo mapa2Aux listaInimigos listaColecionaveisMapa2
 
 posInicial (Mapa inicial fim f) = inicial
 
-largura, altura :: Int
-largura = 600
-altura = 800
-
-base :: Float
-base = -200
 
 mudarTema :: Int -> Int
 mudarTema 0 = 1
 mudarTema 1 = 0
+
+--------------------------------------------carregar ficheiros das imagens--------------------------------
+
+type Imagens = [(Imagem,Picture)]
+
+data Imagem
+  = MarioD1
+  | MarioE1   
+  | MarioD2
+  | MarioE2
+  | MarioC
+  | Bloco
+  | EscadaI
+  | MoedaI
+  | GhostD
+  | GhostE
+  | MacacoMalvadoI
+  | Alcapa
+  | AlcapaAberto
+  | Fundo
+  | Princesa
+  | MarteloI
+  | MarioMarteloCimaD 
+  | MarioMarteloCimaE 
+  | MarioMarteloBaixoD 
+  | MarioMarteloBaixoE
+  | MenuMorteI
+  | Menu
+  | MenuT
+  | MenuN
+  | GGI
+    -- tema Hollow
+  | HollowL1
+  | HollowR1
+  | HollowL2
+  | HollowR2
+  | HollowMarteloR1
+  | HollowMarteloL1
+  | HollowMarteloR2
+  | HollowMarteloL2
+  | HollowPlat  
+  | HollowFundo
+  | HollowFantasmaR
+  | HollowFantasmaL
+  | HollowPrincesa 
+  | HollowMacacoR
+  | HollowMacacoL
+  | HollowAlcapaoA
+  | HollowAlcapaoF
+  | HollowMoeda 
+  | HollowMartelo 
+-- --------
+  deriving (Show, Eq)
+
 
 carregarImagens :: IO Imagens
 carregarImagens = do
@@ -164,7 +163,6 @@ carregarImagens = do
   hollowAlcapaoF <- loadBMP "HollowAlF.bmp"
   hollowMoeda <- loadBMP "HollowMoeda.bmp" 
   hollowMartelo <- loadBMP "HollowMartelo.bmp" 
-  --marioC <- loadBMP "MarioCBit.bmp"
   escada <- loadBMP "escadaBit2.bmp"
   bloco <- loadBMP "blocoBit.bmp"
   moeda <- loadBMP "moedaBit.bmp"
@@ -174,7 +172,7 @@ carregarImagens = do
   alcapaAberto <- loadBMP "alcapaoAbertoBit.bmp"
   fundo <- loadBMP "FundoBit.bmp"
   minimacaco <- loadBMP "MiniMacacoBit.bmp"
-  --macacoMalvado <- loadBMP ""
+  macacoMalvado <- loadBMP "DonkeyKong.bmp"
   princesa <- loadBMP "PrincesaBit.bmp"
   marioMCD <- loadBMP "MarioMarteloBitD.bmp" 
   marioMCE <- loadBMP "MarioMarteloBitE.bmp" 
@@ -195,8 +193,6 @@ carregarImagens = do
     , (MarioMarteloCimaE , marioMCE)
     , (MarioMarteloBaixoD , marioMBD)
     , (MarioMarteloBaixoE , marioMBE)
-    --, (MarioC, marioC)
-    -- tema Hollow
     , (HollowR1, hollowR1)
     , (HollowL1, hollowL1)
     , (HollowR2, hollowR2)
@@ -221,7 +217,7 @@ carregarImagens = do
     , (MoedaI, moeda)
     , (GhostD, ghostD)
     , (GhostE, ghostE)
-    , (MacacoMalvadoI , minimacaco)
+    , (MacacoMalvadoI , macacoMalvado)
     , (Alcapa, alcapa)
     , (AlcapaAberto, alcapaAberto)
     , (MoedaI, moeda)
@@ -238,7 +234,7 @@ carregarImagens = do
 getImagem :: Imagem -> Imagens -> Picture
 getImagem key dicionario = fromJust $ lookup key dicionario
 
-
+--Desenha o mapa , colecionaveis , inimigos , jogador e pontuacao
 draw :: PrimateKong -> IO Picture
 draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) MenuMorte opcao timer tema imagens)  = 
   return $ Translate 0 0 $ Scale 1.1 1.1 $ getImagem MenuMorteI imagens
@@ -256,17 +252,20 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
   , drawPrincesa tema imagens mapaD
   , drawInimigos tema imagens inimigosD
   , drawPontos imagens jogadorD
+  , drawVidas imagens jogadorD
   , if tema == 0 
     then drawMario imagens jogadorD
     else drawHollow imagens jogadorD
   ]
 
+----------------------------------------------------------------
+-- desenha princesa
 drawPrincesa :: Int -> Imagens -> Mapa -> Picture
 drawPrincesa 0 imgs (Mapa _ (x,y) _) =  Translate (realToFrac x) ((realToFrac y) - 2) $ Scale 0.9 0.9 $ getImagem Princesa imgs
 drawPrincesa 1 imgs (Mapa _ (x,y) _) =  Translate (realToFrac x) ((realToFrac y) - 2) $ Scale 0.5 0.5 $ getImagem HollowPrincesa imgs
                                                                
 
--- tema default
+-- tema default , personagem principal
 drawMario :: Imagens -> Personagem -> Picture
 drawMario imgs (Personagem { posicao = (x,y), direcao = dir, aplicaDano = (armado,tempo)}) 
  | armado && (dir == Este)  = Translate ((realToFrac x)+5) ((realToFrac y)+4) $ Scale 1 1 $ 
@@ -278,7 +277,7 @@ drawMario imgs (Personagem { posicao = (x,y), direcao = dir, aplicaDano = (armad
  | otherwise = Translate (realToFrac x) ((realToFrac y)) $ Scale 0.9 0.9 $ 
  (if even $ round x then getImagem MarioE2 imgs else getImagem MarioE1 imgs)
 
--- tema hollow
+-- tema hollow , personagem principal 
 drawHollow :: Imagens -> Personagem -> Picture
 drawHollow imgs (Personagem { posicao = (x,y), direcao = dir, aplicaDano = (armado,tempo)}) 
  | armado && (dir == Este)  = Translate ((realToFrac x)+5) ((realToFrac y)+4) $ Scale 0.6 0.6 $ 
@@ -290,7 +289,8 @@ drawHollow imgs (Personagem { posicao = (x,y), direcao = dir, aplicaDano = (arma
  | otherwise = Translate (realToFrac x) ((realToFrac y)) $ Scale 0.6 0.6 $ 
  (if even $ round x then getImagem HollowL2 imgs else getImagem HollowL1 imgs)
 
-
+----------------------------------------------------------------------------------------
+-- percorre a lista de inimigos e desenha cada um 
 drawInimigos :: Int -> Imagens -> [Personagem] -> Picture
 drawInimigos _ _ [] = blank
 drawInimigos tema imgs (inimigo@(Personagem {posicao = (x,y)}):t) =
@@ -299,36 +299,51 @@ drawInimigos tema imgs (inimigo@(Personagem {posicao = (x,y)}):t) =
 
 
 drawInimigosAux :: Int -> Imagens -> Personagem -> Picture
-drawInimigosAux tema imgs (Personagem { posicao = (x,y), direcao = dir }) | (dir == Oeste) =  
-  if tema == 0 then Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostE imgs
-  else Translate (realToFrac x) ((realToFrac y) + 5) $ Scale 0.45 0.45 $ getImagem HollowFantasmaL imgs
-                                                                     | otherwise = 
-                                                                      if tema == 0 then Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostD imgs
-                                                                      else Translate (realToFrac x) ((realToFrac y) + 5) $ Scale 0.45 0.45 $ getImagem HollowFantasmaR imgs
+--desenha o MacacoMalvado
 
+drawInimigosAux tema imgs (Personagem { posicao = (x,y), direcao = dir , tipo = MacacoMalvado }) 
+  | (dir == Oeste) =  
+    if tema == 0 then Translate (realToFrac x) ((realToFrac y) +20) $ Scale 0.9 0.9 $ getImagem MacacoMalvadoI imgs
+    else Translate (realToFrac x) ((realToFrac y) + 23) $ Scale 0.35 0.35 $ getImagem HollowMacacoL imgs
+  | otherwise = 
+    if tema == 0 then Translate (realToFrac x) ((realToFrac y) +20) $ Scale 0.9 0.9 $ getImagem MacacoMalvadoI imgs
+    else Translate (realToFrac x) ((realToFrac y) + 23) $ Scale 0.35 0.35 $ getImagem HollowMacacoR imgs
+--desenha o Fantasma
+drawInimigosAux tema imgs (Personagem { posicao = (x,y), direcao = dir }) 
+  | (dir == Oeste) =  
+    if tema == 0 then Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostE imgs
+    else Translate (realToFrac x) ((realToFrac y) + 5) $ Scale 0.45 0.45 $ getImagem HollowFantasmaL imgs
+  | otherwise = 
+    if tema == 0 then Translate (realToFrac x) ((realToFrac y) - 5) $ Scale 0.9 0.9 $ getImagem GhostD imgs
+    else Translate (realToFrac x) ((realToFrac y) + 5) $ Scale 0.45 0.45 $ getImagem HollowFantasmaR imgs
 
+-------------------------------------------------------------------------------------------------
+--funcao para desenhar os varios componentes do mapa 
 
 drawMap :: Mapa -> [(Colecionavel,Posicao)] -> Int -> Imagens -> Picture
-drawMap (Mapa (posI, dir) posF matriz) listaCol tema imgs = Pictures [
+drawMap (Mapa (posI, dir) posF matriz) listaColecionaveis tema imgs = Pictures [
    if tema == 0 
    then Translate 0 0 $ Scale 1 1 $ (getImagem Fundo imgs)
    else Translate 0 0 $ Scale 1 1 $ (getImagem HollowFundo imgs)
    , drawStairs imgs (concat matriz)
    , drawBlocks tema imgs (concat matriz)
    , drawAlcapao tema imgs (concat matriz)
-   , drawColecionavel tema imgs listaCol
-   {-
-   , Translate 0 (300) $ color black $ rectangleSolid 10000 1 -- linha
-   , Translate 0 (-340) $ color black $ rectangleSolid 10000 1 -- linha
-   , Translate 0 (-180) $ color black $ rectangleSolid 10000 1 -- linha
-   , Translate 0 (-20) $ color black $ rectangleSolid 10000 1 -- linha
-   , Translate 0 (140) $ color black $ rectangleSolid 10000 1 -- linha
-   -}
+   , drawColecionavel tema imgs listaColecionaveis
   ]
+
+-------------------------------------------------------------------------
+--desenha pontos e vidas 
 
 drawPontos :: Imagens -> Personagem -> Picture
 drawPontos imgs (Personagem{pontos = p}) =
-  Translate 225 350 $ color white $ Scale 0.4 0.4 $ Text $ show p
+  Translate 170 370 $ color white $ Scale 0.2 0.2 $ Text $ ("pontos: " ++ show p) 
+
+drawVidas :: Imagens -> Personagem -> Picture
+drawVidas imgs (Personagem{vida = p}) =
+  Translate 65 370 $ color white $ Scale 0.2 0.2 $ Text $ ("vidas: " ++ show p)
+
+-----------------------------------------------------------------------
+--percorre a lista e desenha os blocos 
 
 drawBlocks ::  Int -> Imagens -> [Bloco] -> Picture
 drawBlocks _ _ [] = blank  
@@ -336,13 +351,13 @@ drawBlocks tema imgs ((Plataforma (x,y)) : rest) =
   pictures [drawBlocksAux tema imgs (Plataforma (x,y)), drawBlocks tema imgs rest]
 drawBlocks tema imgs (bloco:rest) = drawBlocks tema imgs rest
 
-
 drawBlocksAux ::  Int -> Imagens -> Bloco -> Picture
 drawBlocksAux tema imgs (Plataforma (x,y)) = 
   if tema == 0 then Translate (realToFrac x) (realToFrac y) $ Scale 1.38 1.38 $ (getImagem Bloco imgs)
   else Translate (realToFrac x) (realToFrac y) $ Scale 0.6 0.6 $ (getImagem HollowPlat imgs)
 
-
+-----------------------------------------------------------------------
+--percorre a lista e desenha as escadas
 
 drawStairs ::  Imagens -> [Bloco] -> Picture
 drawStairs _ [] = blank  
@@ -354,7 +369,8 @@ drawStairs imgs (bloco:rest) = drawStairs imgs rest
 drawStairsAux ::   Imagens -> Bloco -> Picture
 drawStairsAux imgs (Escada (x,y)) = Translate (realToFrac x) (realToFrac y) $ Scale 1 1.1 $ (getImagem EscadaI imgs)
 
-
+------------------------------------------------------------------------
+--percorre a lista e desenha os alcapoes
 
 drawAlcapao :: Int ->  Imagens -> [Bloco] -> Picture
 drawAlcapao _ _ [] = blank  
@@ -369,8 +385,8 @@ drawAlcapaoAux 0 imgs (Alcapao (x,y) existe tempo)|existe = Translate (realToFra
 drawAlcapaoAux 1 imgs (Alcapao (x,y) existe tempo)|existe = Translate (realToFrac x-20) (realToFrac y-10) $ Scale 0.3 0.3 $ (getImagem HollowAlcapaoA imgs)
                                                   |otherwise = Translate (realToFrac x) (realToFrac y+13) $ Scale 0.3 0.3 $ (getImagem HollowAlcapaoF imgs)
 
-
-
+---------------------------------------------------------------------------
+--percorre a lista e desenha os colecionaveis
 
 drawColecionavel :: Int ->  Imagens -> [(Colecionavel,Posicao)] -> Picture
 drawColecionavel _ _ [] = blank  
@@ -387,9 +403,8 @@ drawColecionavelAux 0 imgs (Martelo, (x,y)) = Translate (realToFrac x) (realToFr
 drawColecionavelAux 1 imgs (Moeda, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 0.3 0.3 $ (getImagem HollowMoeda imgs)
 drawColecionavelAux 1 imgs (Martelo, (x,y)) = Translate (realToFrac x) (realToFrac y+10) $ Scale 0.4 0.4 $ (getImagem HollowMartelo imgs)
                                                                               
-
-
-
+-----------------------------------------------------------------------------
+-- Recebe o input do jogador no Jogo/Menu e transforma numa acao , e transmite as acoes dos inimigos
 
 reage :: Event  -> PrimateKong -> IO PrimateKong
 reage (EventKey (SpecialKey KeyRight) Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA  }) 
@@ -423,6 +438,9 @@ reage (EventKey (SpecialKey KeyDown) Down _ _) primata@(PrimateKong { jogo = jog
                         else return $ primata { jogo = atualiza (acaoInimigos jogoA) (Just Descer) jogoA }
   | otherwise = return primata
 
+--------------------------------------------------------------------------------------
+-- Input dos Menus 
+
 reage (EventKey (Char '1') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema = temaA, opcao = opcaoA , imagens = imgsA})
   | menuA == MenuTemas = return $ primata { menu = MenuInicial , tema = temaA}
   | menuA == MenuInicial && opcaoA == Nivel1 = return $ (g initialState1 imgsA){menu = EmJogo, tema = temaA}
@@ -451,6 +469,9 @@ reage (EventKey (Char '3') Down _ _) primata@(PrimateKong { jogo = jogoA , menu 
 
 reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) Nothing jogoA }
 
+------------------------------------------------------------------------------------------------
+--Calcula as acoes dos inimigos 
+
 acaoInimigos :: Jogo -> [Maybe Acao]
 acaoInimigos (Jogo {inimigos = []}) = []
 acaoInimigos jogo@(Jogo { inimigos = ini@(Personagem {posicao = (x,y), velocidade = (xv,yv), direcao = dir, querSaltar = quer , emEscada = emEsc}):t, mapa = mapa@(Mapa a b matriz)})
@@ -460,6 +481,16 @@ acaoInimigos jogo@(Jogo { inimigos = ini@(Personagem {posicao = (x,y), velocidad
 -- | not $ colideEscada (concat matriz) ini && quer = (Just Parar):acaoInimigos jogo{inimigos = t}
  | otherwise = Nothing:acaoInimigos jogo{inimigos = t}
 
+--funcao auxiliar de acaoInimigos para quando o inimigo colide com uma borda a qual ele rebate este ande na direcao contraria
+oposta :: Direcao -> Maybe Acao
+oposta Este = Just AndarEsquerda
+oposta Oeste = Just AndarDireita
+oposta Norte = Nothing
+oposta Sul = Nothing
+
+------------------------------------------------------------------------------------------------------
+-- Adiciona inimigos em posicaoes x aleatorias dependentes da semente e da posicao x e y do jogador , de 6 em 6 segundos 
+-- atraves do Bool calculado na funcao tempoNascerInimigo , usando o cronometro geral do data PrimataKong
 adicionarInimigos :: RandomGen g => Niveis -> g -> [Personagem] -> Bool -> [Personagem]
 adicionarInimigos Nivel1 gen lista True =
     let (x, gen1) = randomR (-270, 270) gen
@@ -475,6 +506,9 @@ adicionarInimigos Nivel2 gen lista True =
     in if length lista > inimigosLimite2 then lista else (lista ++ [newInimigo])
 adicionarInimigos nivel gen lista False = lista
 
+podeNascerInimigo :: Int -> Bool
+podeNascerInimigo time = (mod time 360) == 0   
+
 par :: Float -> Float -> (Float, Float)
 par x y = (fromIntegral (floor x) :: Float, fromIntegral (enemiesY (floor y)) :: Float)
   where
@@ -484,55 +518,59 @@ par x y = (fromIntegral (floor x) :: Float, fromIntegral (enemiesY (floor y)) ::
     enemiesY 3 = 140
     enemiesY 4 = 300
 
+----------------------------------------------------------------------------------------------------------
+--Atualiza o estado principal PrimataKong
 
+atualizaPrimata :: Float -> PrimateKong -> IO PrimateKong 
+atualizaPrimata dt primata@(PrimateKong jogoA@(Jogo mapa@(Mapa i (fx,fy) matriz) inimigos colecionaveis jogador) menuA opcaoA timer temaA imgsA) = do 
+  let 
+      --gerar um numero aleatorio atraves da posicao x e y do jogador e de uma semente defenida no 
+      -- data type SementeR , com instance de RandomGen defenida 
+      gen = (SementeR ((round(fst(posicao jogador)))*(round(snd(posicao jogador))))) 
+      ----------------------------------------------------
+      -- atualizar as acoes dos inimigos e adiconar novos inimigos
+      atualizaInmigosJogo = jogoA {inimigos = 
+                                 atualizaInimigos 
+                                  (acaoInimigos jogoA) 
+                                  (adicionarInimigos opcaoA gen inimigos (podeNascerInimigo timer)) }
+      ----------------------------------------------------
+      --incrementar timer geral 
+      timer' = timer+1
+      ----------------------------------------------------
+      --atualizar os menus quando o jogador morre ou vence
+      menuA' = if (vida jogador) == 0 then MenuMorte 
+               else if  (fx,fy) == posicaoFinal then GG 
+               else menuA
+      -----------------------------------------------------
+      --Atualizar o jogo ( Jogador, Inimigos, Colecionaveis, Mapa )
+      jogoA' = if (menuA == EmJogo) then movimenta sementeValor (realToFrac dt) atualizaInmigosJogo
+               else jogoA
+      -----------------------------------------------------
+    --p = vida jogador 
+--putStrLn (show p)
+  return (PrimateKong jogoA' menuA' opcaoA timer' temaA imgsA )        
 
-{-
-gerarAleatorioPos :: Int -> Int
-gerarAleatorioPos posicao = let n' = head(geraAleatorios (floor posicao) 1)
-                            in if (n' > 279) && (n' < -279) 
-                               then gerarAleatorioPos posicao 
-                               else n'-}
-
-
-oposta :: Direcao -> Maybe Acao
-oposta Este = Just AndarEsquerda
-oposta Oeste = Just AndarDireita
-oposta Norte = Nothing
-oposta Sul = Nothing
+--------------------------------------------------------------------------
+--Funcao Main , responsavel por iniciar o jogo 
 
 main :: IO ()
 main = do
-  imgs <- carregarImagens
+  imgs <- carregarImagens --carrega as Imagens 
   playIO
     window -- Janela
-    (greyN 0.5) -- Background
+    (greyN 0) -- Background
     60 -- FrameRate
     (g (initialState1) imgs) -- Estado Inicial
     draw -- desenha no ecra
     reage -- inputs
     atualizaPrimata -- updated the world
 
+-------------------------------------------------------------
+--Funcao auxiliar utilizada para o EstadoInical do Jogo devido a erros 
+--nos tipos de IO Picture 
+
+--g :: (Jogo,Menu,Opcoes) -> IO Imagens -> PrimateKong  
 g (jogo,menu,opcoes,time, tema) imgs = (PrimateKong jogo menu opcoes time tema imgs)
- --g :: (Jogo,Menu,Opcoes) -> IO Imagens -> PrimateKong   
-
-
-spawnarInimigo :: Int -> Bool
-spawnarInimigo time = (mod time 360) == 0   
-
-atualizaPrimata :: Float -> PrimateKong -> IO PrimateKong 
-atualizaPrimata dt primata@(PrimateKong jogoA@(Jogo mapa@(Mapa i (fx,fy) m) inimigos colecionaveis jogador) menuA opcaoA timer temaA imgsA) = do 
-  let jogoA' = if (menuA == EmJogo) 
-               then movimenta sementeValor (realToFrac dt) jogoAux
-               else jogoA
-      gen = (SementeR ((round(fst(posicao jogador)))*(round(snd(posicao jogador))))) 
-      jogoAux = jogoA{inimigos = atualizaInimigos (acaoInimigos jogoA) (adicionarInimigos opcaoA gen inimigos (spawnarInimigo timer)) }
-      (Mapa (posI,dirI) posf matriz) = (mapa)
-      timer' = timer+1
-      menuA' = if (vida jogador) >= 999 && (vida jogador) >= 950
-               then MenuMorte 
-               else if  (fx,fy) == (2000,2000) then GG 
-               else menuA
-      p = vida jogador 
-  putStrLn (show p)
-  return (PrimateKong jogoA' menuA' opcaoA timer' temaA imgsA )             
+ 
+ -------------------------------------------------------------
 
