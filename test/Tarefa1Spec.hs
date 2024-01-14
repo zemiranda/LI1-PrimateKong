@@ -7,18 +7,18 @@ import LI12324
 
 -- | Colisoes entre personagens
 
-p1 = Personagem (0,0) Jogador (5,4) Este (1,1) False False 10 0 (False, 0.0) False
-p2 = Personagem (0,0) Fantasma (4,4) Oeste (1,1) True False 2 0 (False, 0.0) False
+p1 = Personagem (0,0) Jogador (50,40) Este (30,40) False False 10 0 (False, 0.0) False 0
+p2 = Personagem (0,0) Fantasma (40,40) Oeste (30,40) True False 2 0 (False, 0.0) False 0
 
 teste1 = "T1: Personagens colidem " ~: True ~=? colisoesPersonagens p1 p2
 
-p3 = Personagem (0,0) Jogador (2,7) Este (1,1) False False 10 0 (False, 0.0) False
-p4 = Personagem (0,0) Fantasma (4,4) Oeste (1,1) True False 2 0 (False, 0.0) False
+p3 = Personagem (0,0) Jogador (20,70) Este (30,40) False False 10 0 (False, 0.0) False 0
+p4 = Personagem (0,0) Fantasma (60,40) Oeste (30,40) True False 2 0 (False, 0.0) False 0
 
 teste2 = "T2: Personagens nao colidem " ~: False ~=? colisoesPersonagens p3 p4
 
-p5 = Personagem (0,0) Jogador (3,2) Este (1,1) False False 10 0 (False, 0.0) False
-p6 = Personagem (0,0) Fantasma (3,3) Oeste (1,1) True False 2 0 (False, 0.0) False
+p5 = Personagem (0,0) Jogador (40,20) Este (30,40) False False 10 0 (False, 0.0) False 0
+p6 = Personagem (0,0) Fantasma (30,30) Oeste (30,40) True False 2 0 (False, 0.0) False 0
 
 teste3 = "T3: Personagens colidem " ~: True ~=? colisoesPersonagens p5 p6
 
@@ -50,19 +50,19 @@ blocos1 = [
 gameMap1 :: Mapa
 gameMap1 = Mapa ((8.5, 6.5), Este) (5, 1.5) (listaBlocos (f blocos1 (-280, 380)))
 
-pl1 = Personagem (0.0,0.0) Jogador (8.5,6.5) Este (0,0) False False 10 0 (False, 0.0) False
+pl1 = Personagem (0.0,0.0) Jogador (8.5,6.5) Este (0,0) False False 10 0 (False, 0.0) False 0
 
 teste4 = "T4: Jogador nao colide com nenhuma parede " ~: (False,False) ~=? colisoesParede gameMap1 pl1
 
-pl2 = Personagem (0.0,0.0) Jogador (300,6.5) Este (1,1) False False 10 0 (False, 0.0) False
+pl2 = Personagem (0.0,0.0) Jogador (300,6.5) Este (1,1) False False 10 0 (False, 0.0) False 0
 
-teste5 = "T5: Jogador colide com limite lateral " ~: 281 ~=? limiteMapaX 0 pl2 gameMap1
+teste5 = "T5: Jogador colide com limite lateral " ~: 280 ~=? limiteMapaX 0 pl2 gameMap1
 
-pl3 = Personagem (0.0,0.0) Jogador (8.5,1000) Este (1,1) False False 10 0 (False, 0.0) False
+pl3 = Personagem (0.0,0.0) Jogador (8.5,1000) Este (1,1) False False 10 0 (False, 0.0) False 0
 
 teste6 = "T6: Jogador colide com limite superior " ~: 380 ~=? limiteMapaY 0 pl3 gameMap1
 
-pl4 = Personagem (0.0,0.0) Jogador (0,300) Este (1,1) False False 10 0 (False, 0.0) False
+pl4 = Personagem (0.0,0.0) Jogador (0,300) Este (1,1) False False 10 0 (False, 0.0) False 0
 
 teste7 = "T7: Jogador colide com 'P' " ~: True ~=? colisoesChao gameMap1 pl4
 
