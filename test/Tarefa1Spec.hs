@@ -52,7 +52,7 @@ gameMap1 = Mapa ((8.5, 6.5), Este) (5, 1.5) (listaBlocos (f blocos1 (-280, 380))
 
 pl1 = Personagem (0.0,0.0) Jogador (8.5,6.5) Este (0,0) False False 10 0 (False, 0.0) False 0
 
-teste4 = "T4: Jogador nao colide com nenhuma parede " ~: (False,False) ~=? colisoesParede gameMap1 pl1
+teste4 = "T4: Jogador nao colide com nenhuma parede " ~: False ~=? colisoesParede gameMap1 pl1
 
 pl2 = Personagem (0.0,0.0) Jogador (300,6.5) Este (1,1) False False 10 0 (False, 0.0) False 0
 
