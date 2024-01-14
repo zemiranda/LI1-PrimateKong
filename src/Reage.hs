@@ -96,12 +96,18 @@ reage (EventKey (Char 'g') Down _ _) primata@(PrimateKong { jogo = jogoA , menu 
 reage (EventKey (Char 'm') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema = temaA, opcao = opcaoA , imagens = imgsA})
   = return $ daMartelo primata  
 
+-- mata o jogador
+reage (EventKey (Char 'f') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema = temaA, opcao = opcaoA , imagens = imgsA})
+  = return $ mataJogador primata 
+
 reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) Nothing jogoA }
 
 daPonto primata@(PrimateKong{jogo = jogo'@(Jogo{jogador = j@(Personagem{pontos = pontos'})})}) = primata{jogo = jogo'{jogador = j{pontos = pontos'+1}}}
 daVida primata@(PrimateKong{jogo = jogo'@(Jogo{jogador = j@(Personagem{vida = vida'})})}) = primata{jogo = jogo'{jogador = j{vida = vida'+1}}}
 acabaOJogo primata@(PrimateKong{jogo = jogo'@(Jogo{jogador = j@(Personagem{vida = vida'}), mapa = (Mapa i (fx,fy) matriz)})}) = primata{jogo = jogo'{jogador = j{posicao = (fx,fy), invincibilidade = 10}}}
 daMartelo primata@(PrimateKong{jogo = jogo'@(Jogo{jogador = j@(Personagem{aplicaDano = (armado,tempo)})})}) = primata{jogo = jogo'{jogador = j{aplicaDano = (True,600)}}}
+mataJogador primata@(PrimateKong{jogo = jogo'@(Jogo{jogador = j@(Personagem{vida = vida'})})}) = primata{jogo = jogo'{jogador = j{vida = 0}}}
+
 ------------------------------------------------------------------------------------------------
 --Calcula as acoes dos inimigos 
 

@@ -113,10 +113,10 @@ base = -200
 -----------------------------------Lista de Colecionaveis para cada nivel---------------------------------------------
 
 listaColecionaveisMapa1 :: [(Colecionavel,Posicao)]
-listaColecionaveisMapa1 = [(Moeda,(250,-300)),(Moeda,(-250,170)),(Moeda,(-30,0)),(Moeda,(-250,-300)),(Martelo,(0,170)),(Martelo,(-200,-150)),(Martelo,(200,300))]
+listaColecionaveisMapa1 = [(Moeda,(250,-300)),(Moeda,(-250,170)),(Moeda,(-30,0)),(Martelo,(0,170)),(Martelo,(-200,-150)),(Martelo,(200,300))]
 
 listaColecionaveisMapa2 :: [(Colecionavel,Posicao)]
-listaColecionaveisMapa2 = [(Moeda,(0,-300)),(Moeda,(-30,0)),(Moeda,(-250,-300)),(Martelo,(200,300)),(Martelo,(200,150)),(Moeda,(200,-150)),(Martelo,(-200,-150)),(Moeda,(-200,150))]
+listaColecionaveisMapa2 = [(Moeda,(0,-300)),(Moeda,(-30,0)),(Martelo,(200,300)),(Martelo,(200,150)),(Moeda,(200,-150)),(Martelo,(-200,-150)),(Moeda,(-200,150))]
 
 --------------------funcoes para transformar a matriz de letras em variaveis (Plataforma,Alcapao...)--------------
 

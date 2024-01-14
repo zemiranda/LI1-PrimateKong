@@ -84,6 +84,7 @@ data Imagem
   | HollowAlcapaoF
   | HollowMoeda 
   | HollowMartelo 
+  | HollowGG
 -- --------
   deriving (Show, Eq)
 

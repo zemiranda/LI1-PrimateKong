@@ -43,6 +43,7 @@ carregarImagens = do
   hollowAlcapaoF <- loadBMP "imagens/HollowAlF.bmp"
   hollowMoeda <- loadBMP "imagens/HollowMoeda.bmp" 
   hollowMartelo <- loadBMP "imagens/HollowMartelo.bmp" 
+  hollowGG <- loadBMP "imagens/MenuWIinHollowaBit.bmp"
   escada <- loadBMP "imagens/escadaBit2.bmp"
   bloco <- loadBMP "imagens/blocoBit.bmp"
   moeda <- loadBMP "imagens/moedaBit.bmp"
@@ -93,6 +94,7 @@ carregarImagens = do
     , (HollowAlcapaoF, hollowAlcapaoF)
     , (HollowMoeda, hollowMoeda)
     , (HollowMartelo, hollowMartelo)
+    , (HollowGG, hollowGG)
     , (EscadaI, escada)
     , (Bloco, bloco)
     , (MoedaI, moeda)
@@ -127,7 +129,7 @@ draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = 
 draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) MenuNivel opcao timer tema imagens)  = 
   return $ Translate 0 0 $ Scale 1 1$ getImagem MenuN imagens
 draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) GG opcao timer tema imagens)  = 
-  return $ Translate 0 0 $ Scale 1 1$ getImagem GGI imagens
+  return $ Translate 0 0 $ Scale 1 1$ getImagem (if tema == 0 then GGI else HollowGG) imagens
 draw (PrimateKong (Jogo { mapa = mapaD , inimigos = inimigosD , colecionaveis = colecionaveisD , jogador = jogadorD}) EmJogo opcao timer tema imagens)  = 
   return $ Pictures
   [ drawMap mapaD colecionaveisD tema imagens 

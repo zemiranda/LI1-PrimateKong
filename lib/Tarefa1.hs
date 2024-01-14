@@ -117,8 +117,8 @@ colideTopoEscada (h:t) jogador = colideTopoEscada t jogador
 
 colisoesBordasInimigos :: Personagem -> Mapa -> Bool
 colisoesBordasInimigos inimigo@(Personagem {posicao = (x,y) ,velocidade = (xVel,yVel),tipo = MacacoMalvado , direcao = dire, ressalta = ressalta , emEscada = emEsc}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t))
- | round x < -275 = True
- | round x > 275 = True
+ | round x < -270 = True
+ | round x > 270 = True
  | otherwise = False
 colisoesBordasInimigos inimigo@(Personagem {posicao = (x,y) ,velocidade = (xVel,yVel), direcao = dire, ressalta = ressalta , emEscada = emEsc}) mapa@(Mapa ((xi,yi),d) (xf,yf) (linha:t))
  | not (colisoesChao mapa inimigo)  = True
