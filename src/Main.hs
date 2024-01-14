@@ -98,6 +98,7 @@ data Imagem
   | GhostD
   | GhostE
   | MacacoMalvadoI
+  | MacacoMalvadoL
   | Alcapa
   | AlcapaAberto
   | Fundo
@@ -173,6 +174,7 @@ carregarImagens = do
   fundo <- loadBMP "FundoBit.bmp"
   minimacaco <- loadBMP "MiniMacacoBit.bmp"
   macacoMalvado <- loadBMP "DonkeyKong.bmp"
+  macacoMalvadoL <- loadBMP "DonkeyKongL.bmp"
   princesa <- loadBMP "PrincesaBit.bmp"
   marioMCD <- loadBMP "MarioMarteloBitD.bmp" 
   marioMCE <- loadBMP "MarioMarteloBitE.bmp" 
@@ -218,6 +220,7 @@ carregarImagens = do
     , (GhostD, ghostD)
     , (GhostE, ghostE)
     , (MacacoMalvadoI , macacoMalvado)
+    , (MacacoMalvadoL , macacoMalvadoL)
     , (Alcapa, alcapa)
     , (AlcapaAberto, alcapaAberto)
     , (MoedaI, moeda)
@@ -303,7 +306,7 @@ drawInimigosAux :: Int -> Imagens -> Personagem -> Picture
 
 drawInimigosAux tema imgs (Personagem { posicao = (x,y), direcao = dir , tipo = MacacoMalvado }) 
   | (dir == Oeste) =  
-    if tema == 0 then Translate (realToFrac x) ((realToFrac y) +20) $ Scale 0.9 0.9 $ getImagem MacacoMalvadoI imgs
+    if tema == 0 then Translate (realToFrac x) ((realToFrac y) +20) $ Scale 0.9 0.9 $ getImagem MacacoMalvadoL imgs
     else Translate (realToFrac x) ((realToFrac y) + 23) $ Scale 0.35 0.35 $ getImagem HollowMacacoL imgs
   | otherwise = 
     if tema == 0 then Translate (realToFrac x) ((realToFrac y) +20) $ Scale 0.9 0.9 $ getImagem MacacoMalvadoI imgs
@@ -467,8 +470,18 @@ reage (EventKey (Char '3') Down _ _) primata@(PrimateKong { jogo = jogoA , menu 
   | menuA == MenuNivel = return $ primata { menu = MenuInicial}
   | otherwise = return primata  
 
+
+-- Cheat Codes
+reage (EventKey (Char 'p') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema = temaA, opcao = opcaoA , imagens = imgsA})
+  = return $ daPonto primata
+
+reage (EventKey (Char 'v') Down _ _) primata@(PrimateKong { jogo = jogoA , menu = menuA ,tema = temaA, opcao = opcaoA , imagens = imgsA})
+  = return $ daVida primata
+
 reage _ primata@(PrimateKong { jogo = jogoA  }) = return $ primata { jogo = atualiza (acaoInimigos jogoA) Nothing jogoA }
 
+daPonto primata@(PrimateKong{jogo = jogo'@(Jogo{jogador = j@(Personagem{pontos = pontos'})})}) = primata{jogo = jogo'{jogador = j{pontos = pontos'+1}}}
+daVida primata@(PrimateKong{jogo = jogo'@(Jogo{jogador = j@(Personagem{vida = vida'})})}) = primata{jogo = jogo'{jogador = j{vida = vida'+1}}}
 ------------------------------------------------------------------------------------------------
 --Calcula as acoes dos inimigos 
 
