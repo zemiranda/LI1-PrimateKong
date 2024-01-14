@@ -14,6 +14,45 @@ inimigosLimite1 = 5
 
 inimigosLimite2 :: Int
 inimigosLimite2 = 7
+
+--------------------------------Configuracao inicial para cada nivel -------------------------------------
+
+initialState1 :: (Jogo,Menu,Niveis,Int,Int)
+initialState1 = ((Jogo mapa1Aux listaInimigos listaColecionaveisMapa1 
+                 (Personagem
+                   { velocidade = (0, 0)
+                   , tipo       = Jogador
+                   , posicao    = fst $ posInicial mapa1Aux
+                   , direcao    = snd $ posInicial mapa1Aux
+                   , tamanho    = (30, 40)
+                   , emEscada   = False
+                   , ressalta   = False
+                   , vida       = 5
+                   , pontos     = 0
+                   , aplicaDano = (False, 0)
+                   , querSaltar = (False)
+                   , invincibilidade = 0 
+                   })), MenuInicial, Nivel1, 0, 0) 
+
+initialState2 :: (Jogo,Menu,Niveis,Int,Int)
+initialState2 = ((Jogo mapa2Aux listaInimigos listaColecionaveisMapa2 
+                 (Personagem
+                   { velocidade = (0, 0)
+                   , tipo       = Jogador
+                   , posicao    = fst $ posInicial mapa1Aux
+                   , direcao    = snd $ posInicial mapa1Aux
+                   , tamanho    = (30, 40)
+                   , emEscada   = False
+                   , ressalta   = False
+                   , vida       = 5
+                   , pontos     = 0
+                   , aplicaDano = (False, 0)
+                   , querSaltar = (False)
+                   , invincibilidade = 0 
+                   })), MenuInicial, Nivel1, 0, 0) 
+
+posInicial (Mapa inicial fim f) = inicial
+
 --------------------------------------------------------MAPA-------------------------------------------------------
 
 mapa1 :: [[Char]]
@@ -21,11 +60,11 @@ mapa1 = [
  ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
- ['B','B','B','A','B','B','B','B','V','V','B','B','A','B','B'],
+ ['B','B','B','A','B','B','B','B','A','B','B','B','A','B','B'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
- ['B','B','B','B','B','V','B','B','A','B','B','B','B','B','B'],
+ ['B','B','B','B','B','A','B','B','A','B','B','B','B','B','B'],
  ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
  ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
  ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
@@ -44,15 +83,15 @@ mapa2 = [
  ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
  ['V','V','V','V','V','V','V','V','V','V','V','V','V','V','V'],
- ['B','B','B','A','B','B','B','A','B','B','B','B','A','B','B'],
- ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
- ['V','V','V','V','V','V','V','V','V','V','E','V','V','V','V'],
- ['V','V','V','V','V','V','V','V','V','V','3','V','V','V','V'],
- ['B','B','B','B','B','A','B','B','A','B','B','B','B','B','B'],
+ ['B','B','B','A','B','B','B','B','B','V','B','B','A','B','B'],
+ ['V','V','V','V','V','V','V','V','E','V','E','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','E','V','E','V','V','V','V'],
+ ['V','V','V','V','V','V','V','V','E','V','E','V','V','V','V'],
+ ['B','B','B','B','B','A','B','B','B','B','B','B','B','B','B'],
  ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
  ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
  ['V','E','V','V','V','V','V','V','V','V','V','V','V','E','V'],
- ['B','B','A','B','B','B','B','B','A','B','B','B','B','B','B'],
+ ['B','B','A','B','B','B','B','B','V','B','B','B','B','B','B'],
  ['V','V','V','V','V','V','V','E','V','V','V','V','V','V','V'],
  ['V','V','V','V','V','V','V','E','V','V','V','V','V','V','V'],
  ['V','V','V','V','V','V','V','E','V','V','V','V','V','V','V'],
@@ -74,10 +113,10 @@ base = -200
 -----------------------------------Lista de Colecionaveis para cada nivel---------------------------------------------
 
 listaColecionaveisMapa1 :: [(Colecionavel,Posicao)]
-listaColecionaveisMapa1 = [(Moeda,(270,20)),(Moeda,(-30,0)),(Moeda,(-250,-300)),(Martelo,(-200,-150)),(Martelo,(200,300))]
+listaColecionaveisMapa1 = [(Moeda,(250,-300)),(Moeda,(-250,170)),(Moeda,(-30,0)),(Moeda,(-250,-300)),(Martelo,(0,170)),(Martelo,(-200,-150)),(Martelo,(200,300))]
 
 listaColecionaveisMapa2 :: [(Colecionavel,Posicao)]
-listaColecionaveisMapa2 = [(Moeda,(270,20)),(Moeda,(-30,0)),(Moeda,(-250,-300)),(Martelo,(-200,-150))]
+listaColecionaveisMapa2 = [(Moeda,(0,-300)),(Moeda,(-30,0)),(Moeda,(-250,-300)),(Martelo,(200,300)),(Martelo,(200,150)),(Moeda,(200,-150)),(Martelo,(-200,-150)),(Moeda,(-200,150))]
 
 --------------------funcoes para transformar a matriz de letras em variaveis (Plataforma,Alcapao...)--------------
 
@@ -103,13 +142,13 @@ listaBlocos [] = []
 listaBlocos (h:t) = listaBlocosAux h : listaBlocos t
 
 mapa1Aux :: Mapa
-mapa1Aux = Mapa ((0, 300), Oeste) (-250, 300) (listaBlocos (f mapa1 (-280, 380)))
+mapa1Aux = Mapa ((-250, -340), Oeste) (-250, 300) (listaBlocos (f mapa1 (-280, 380)))
 
 mapa1Aux2 :: [[Bloco]]
 mapa1Aux2 = (listaBlocos (f mapa1 (-280, 380)))
 
 mapa2Aux :: Mapa
-mapa2Aux = Mapa ((0, 300), Oeste) (-250, 300) (listaBlocos (f mapa2 (-280, 380)))
+mapa2Aux = Mapa ((-250, -340), Oeste) (-250, 300) (listaBlocos (f mapa2 (-280, 380)))
 
 ----------------------------- funcoes e variaveis acerca do mapa usadas para a funcao valida------------------------- 
 

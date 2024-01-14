@@ -11,17 +11,81 @@ Tipos de dados e funções auxiliares para a realização do projeto de LI1 em 2
 module LI12324 (
     -- * Tipos de dados
     -- ** Básicos
-    Posicao, Velocidade, Tempo, Hitbox, Direcao(..), Semente,
+    Posicao, Imagens(..),Imagem(..), Velocidade, Tempo, Hitbox, Direcao(..), Semente,
     -- ** Mapas
-    Mapa(..), Bloco(..), Personagem(..), Entidade(..), Colecionavel(..),
+    Mapa(..),PrimateKong(..), Menu(..) , Niveis(..) , Bloco(..), Personagem(..), Entidade(..), Colecionavel(..),
     -- ** Jogo
-    Jogo(..), Acao(..),
+    Jogo(..), Acao(..), 
     -- * Funções auxiliares fornecidas
     gravidade, geraAleatorios
     ) where
 
 import System.Random (mkStdGen, randoms)
+import Graphics.Gloss
 
+data Menu = EmJogo | MenuInicial | MenuMorte |MenuTemas |MenuNivel | GG
+    deriving (Show,Eq)
+
+data Niveis = Nivel1 | Nivel2
+    deriving (Show,Eq)
+data PrimateKong = PrimateKong { jogo :: Jogo
+                               , menu :: Menu
+                               , opcao :: Niveis
+                               , timer :: Int
+                               , tema :: Int
+                               , imagens :: Imagens
+                               }
+
+type Imagens = [(Imagem,Picture)]
+
+data Imagem
+  = MarioD1
+  | MarioE1   
+  | MarioD2
+  | MarioE2
+  | Bloco
+  | EscadaI
+  | MoedaI
+  | GhostD
+  | GhostE
+  | MacacoMalvadoI
+  | MacacoMalvadoL
+  | Alcapa
+  | AlcapaAberto
+  | Fundo
+  | Princesa
+  | MarteloI
+  | MarioMarteloCimaD 
+  | MarioMarteloCimaE 
+  | MarioMarteloBaixoD 
+  | MarioMarteloBaixoE
+  | MenuMorteI
+  | Menu
+  | MenuT
+  | MenuN
+  | GGI
+    -- tema Hollow
+  | HollowL1
+  | HollowR1
+  | HollowL2
+  | HollowR2
+  | HollowMarteloR1
+  | HollowMarteloL1
+  | HollowMarteloR2
+  | HollowMarteloL2
+  | HollowPlat  
+  | HollowFundo
+  | HollowFantasmaR
+  | HollowFantasmaL
+  | HollowPrincesa 
+  | HollowMacacoR
+  | HollowMacacoL
+  | HollowAlcapaoA
+  | HollowAlcapaoF
+  | HollowMoeda 
+  | HollowMartelo 
+-- --------
+  deriving (Show, Eq)
 
 
 -- | Peças possíveis para construir um 'Mapa'.
